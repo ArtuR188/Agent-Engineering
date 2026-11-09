@@ -1,0 +1,2 @@
+{"ts":"2026-11-09T17:24:57.884Z","tool":"view","input":{"path":"C:\\Users\\Artur\\OneDrive\\Робочий стіл\\Agent Engineering\\Agent-Engineering\\package.json"},"result":"ok","session":"9cb23d64-5dc2-42e4-97bd-332b1253261b","source":"copilot"}
+{"ts":"2026-11-09T17:24:59.645Z","tool":"powershell","input":{"command":"npm test"},"result":"ok","session":"9cb23d64-5dc2-42e4-97bd-332b1253261b","source":"copilot"}
