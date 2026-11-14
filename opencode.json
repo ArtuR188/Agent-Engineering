@@ -4,5 +4,12 @@
     "plan": {
       "permission": { "edit": "deny", "bash": "deny", "task": "deny" }
     }
+  },
+  "permission": {
+    "read": { "*": "allow", "*.env": "deny", "*.env.*": "deny", "*.env.example": "allow" },
+    "edit": { "*.env": "deny", "*.env.*": "deny", "*.env.example": "allow" }
+  },
+  "mcp": {
+    "context7": { "type": "remote", "url": "https://mcp.context7.com/mcp" }
   }
 }
