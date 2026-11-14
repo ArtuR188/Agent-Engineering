@@ -22,8 +22,9 @@ if (typeof args === 'string') {
 
 const input = {};
 if (tool === 'apply_patch') {
-  const patch = Array.isArray(args.command) ? args.command.join('\n') : String(args.command ?? '');
-  input.files = [...patch.matchAll(/^\*\*\* (?:Add File|Update File|Delete File|Move to): (.+)$/gm)].map((m) => m[1].trim());
+  const rawPatch = args.command ?? args.patch ?? args.patchText ?? args.diff ?? JSON.stringify(args);
+  const patch = Array.isArray(rawPatch) ? rawPatch.join('\n') : String(rawPatch ?? '');
+  input.files = [...patch.matchAll(/\*\*\* (?:Add File|Update File|Delete File|Move to): ([^\r\n"]+)/g)].map((m) => m[1].trim());
 } else {
   for (const key of ['file_path', 'filePath', 'path', 'command', 'pattern', 'url', 'name', 'skill']) {
     if (typeof args[key] === 'string') input[key] = args[key].slice(0, 200);
