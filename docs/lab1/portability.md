@@ -1,4 +1,4 @@
-﻿# Переносність між інструментами — Лабораторна 1
+# Переносність між інструментами — Лабораторна 1
 
 Значення: працює без змін / потрібна адаптація (яка) / не підтримується (чим замінили).
 
@@ -10,4 +10,4 @@
 | Навичка | працює без змін (читає `.claude/skills/` і `.agents/skills/` за наявності полів `name` та `description` у лапках; у журналі видно як `"tool":"skill","input":{"name":"add-api-route"}`) | працює без змін (читає `.claude/skills/` і `.agents/skills/`; у журналі видно як `"tool":"skill","input":{"skill":"add-api-route"}`) |
 | Заборона | потрібна адаптація (маски `permission.read` / `permission.edit` в `opencode.json` не бачать команд `bash` і не пишуть у журнал, тому додано плагін `.opencode/plugins/guard-env.js` на подію `tool.execute.before`, який пише `"result":"denied"` і кидає `Error`) | потрібна адаптація (налаштовано `.github/hooks/guard-env.json` на подію `preToolUse` + спільний Node-скрипт `scripts/guard-env.mjs`, що перевіряє `apply_patch`, `path`, `command`, дописує `"result":"denied"` у журнал і повертає `permissionDecision: "deny"` з кодом виходу `2`) |
 | MCP | потрібна адаптація (підключається у `opencode.json` у блоці `"mcp": { "context7": { "type": "remote", "url": "https://mcp.context7.com/mcp" } }`; інструменти отримують префікс `context7_resolve-library-id`, `context7_query-docs`) | потрібна адаптація (підключається у користувацькому `~/.copilot/mcp-config.json` у блоці `"mcpServers": { "context7": { "type": "http", "url": "https://mcp.context7.com/mcp" } }`; інструменти називаються через дефіс `context7-resolve-library-id`, `context7-query-docs`) |
-| Скріншот-тест | крок 06 | крок 06 |
+| Скріншот-тест | працює без змін (Playwright-тест `tests/home-health-link.spec.ts` не залежить від агента кодування) | працює без змін (Playwright-тест `tests/home-health-link.spec.ts` не залежить від агента кодування) |
