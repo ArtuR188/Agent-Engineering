@@ -21,3 +21,9 @@
 - Звірка оцінки входу (`gemini-3.8-flash`): `countTokens` = `15613`, факт `promptTokenCount` = `15613`, похибка `0.0%` (`≤ 10%`), кеш `13360` токенів на другому виклику.
 - Кеш `ollama` (`qwen3:4b`, `0.40.13`): `ollama-1` (`1963` вхідних, `0` кешованих), `ollama-2` (`1963` вхідних, `1962` кешованих, `cache_read_input_tokens`).
 - Множник `ua / en` (36 слів): `google · gemini-3.8-flash` = `1.73` (`78 / 45`), `ollama · qwen3:4b` = `2.75` (`121 / 44`).
+
+## Крок 08 — Власний агентний цикл і порівняння двох форм API
+
+- **Реалізовано:** `src/agent/agent-loop.ts` (`runAgentLoop`), `src/agent/tools.ts` (`createTools`, `jsonlLogger`), `src/agent/adapters.ts` (`messagesModel`, `chatCompletionsModel`), `scripts/measure-loop.ts`, `tests/agent-loop.test.ts` (14 модульних тестів циклу, інструментів і обох форм API).
+- **Прогони та діагностика:** досліджено поведінку локальної моделі qwen3:4b на CPU у двох формах API (Messages і Chat Completions). Виявлено, що примусовий блок <think> у шаблоні моделі призводить до зупинки max-steps (12 кроків, 24 184 вихідні токени, сесія gent-loop-ollama-messages-2026-11-14T20-41-51-032Z), якщо модель не вкладається у max_tokens. Після налаштування промпту й ліміту токенів у ollama-chat (резерв замість gemini, який повертав HTTP 503 / timeout) отримано валідний вихід done за 2 кроки (2 виклики ead_file, 1334 вхідних, 948 кешованих, 3767 вихідних токенів, 828,11 с, сесія $chatSession).
+- **Верифікація:** пропозицію застосовано у чистій гілці lab1/health-loop від базового коміту dded157 (коміт $appliedCommit), 	ests/health.test.ts проходить, результати зафіксовано у docs/lab1/comparison.md та .agent-log/agent-loop.jsonl.
