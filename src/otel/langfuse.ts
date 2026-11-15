@@ -1,7 +1,7 @@
 // src/otel/langfuse.ts — один процесор на весь процес (Next.js бандлить instrumentation і route окремо)
 import { LangfuseSpanProcessor } from '@langfuse/otel';
 
-const clean = (v?: string) => v?.trim().replace(/^["']|["']$/g, '');
+const clean = (v?: string): string => (v ?? '').trim().replace(/^["']|["']$/g, '');
 const g = globalThis as typeof globalThis & { __langfuseSpanProcessor?: LangfuseSpanProcessor };
 
 export const langfuseSpanProcessor = (g.__langfuseSpanProcessor ??= new LangfuseSpanProcessor({
