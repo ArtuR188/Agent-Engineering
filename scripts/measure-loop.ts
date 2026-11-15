@@ -17,7 +17,7 @@ const SYSTEM = [
   'Ти агент кодування в цьому репозиторії (Next.js App Router, TypeScript strict, Vitest).',
   'Маєш лише інструменти читання list_files і read_file. Прочитай src/health.ts і tests/health.test.ts.',
   'Коли рішення готове, відповідай БЕЗ викликів інструментів, лише JSON:',
-  '{"summary": "що зроблено", "files": [{"path": "app/api/health/route.ts", "content": "import { NextResponse } from \"next/server\";\nimport { getHealth } from \"@/health\";\n\nexport function GET() {\n  return NextResponse.json(getHealth());\n}\n"}]}',
+  '{"summary": "що зроблено", "files": [{"path": "app/api/health/route.ts", "content": "import { NextResponse } from \"next/server\";\nimport { getHealth } from \"../../../src/health\";\n\nexport function GET() {\n  return NextResponse.json(getHealth());\n}\n"}]}',
 ].join('\n');
 const TASK =
   'Виклич read_file для src/health.ts та tests/health.test.ts, після чого поверни фінальний JSON з файлом app/api/health/route.ts.';
