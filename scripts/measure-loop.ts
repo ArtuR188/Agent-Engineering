@@ -26,13 +26,30 @@ function pick(kind: string): { model: Model; spec: ModelSpec; form: string } {
   if (kind === 'gemini') {
     const key = process.env.GEMINI_API_KEY;
     if (!key) throw new Error('GEMINI_API_KEY порожній: заповніть .env.local');
-    const spec = CATALOG['gemini-3.8-flash'];
+    const spec = CATALOG['gemini-3.5-flash-lite'];
     return {
       spec,
       form: 'chat-completions',
       model: chatCompletionsModel({
         url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
         model: spec.id,
+        headers: { authorization: `Bearer ${key}` },
+      }),
+    };
+  }
+  if (kind === 'openrouter') {
+    const key = process.env.OPENROUTER_API_KEY;
+    const id = process.env.OPENROUTER_MODEL;
+    if (!key || !id) throw new Error('OPENROUTER_API_KEY або OPENROUTER_MODEL порожні: заповніть .env.local');
+    // Шлюзу немає в models.ts: для :free-моделі ціни 0; для платної впишіть ціни за 1 млн токенів зі сторінки моделі на OpenRouter.
+    // provider: 'openai' — бо форма API OpenAI-сумісна; окремого значення для шлюзу в типі Provider немає.
+    const spec: ModelSpec = { id, provider: 'openai', inputPerMTok: 0, outputPerMTok: 0, pricingUrl: 'https://openrouter.ai/models' };
+    return {
+      spec,
+      form: 'chat-completions',
+      model: chatCompletionsModel({
+        url: 'https://openrouter.ai/api/v1/chat/completions',
+        model: id,
         headers: { authorization: `Bearer ${key}` },
       }),
     };
@@ -44,7 +61,7 @@ function pick(kind: string): { model: Model; spec: ModelSpec; form: string } {
   if (kind === 'ollama-chat') {
     return { spec, form: 'chat-completions', model: chatCompletionsModel({ url: `${spec.baseUrl}/v1/chat/completions`, model: spec.id }) };
   }
-  throw new Error(`Невідомий провайдер «${kind}». Є: ollama-messages, ollama-chat, gemini`);
+  throw new Error(`Невідомий провайдер «${kind}». Є: ollama-messages, ollama-chat, gemini, openrouter`);
 }
 
 const [kind = 'ollama-messages', runsArg = '1'] = process.argv.slice(2);
