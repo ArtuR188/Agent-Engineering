@@ -1,6 +1,6 @@
 # Вартість викликів — Лабораторна 1
 
-Ollama: `0.40.13` (`qwen3:4b`) · дата вимірів: `2026-11-14`
+Ollama: `0.40.13` (`qwen3:4b`) · дата вимірів: `2026-11-14` – `2026-11-15`
 
 ## 1. Звірка оцінки вхідних токенів (хмарна модель, критерій ≤ 10%)
 
@@ -44,3 +44,21 @@ This repository contains agent engineering exercises. The agent must verify code
 ```
 
 ## 4. Три прогони (крок 11)
+
+Команди запуску з однаковим входом (`SYSTEM`, `TASK`, інструменти `list_files` і `read_file`):
+- `npx tsx --env-file=.env.local scripts/measure-loop.ts gemini 1`
+- `npx tsx --env-file=.env.local scripts/measure-loop.ts openrouter 1`
+- `npx tsx --env-file=.env.local scripts/measure-loop.ts ollama-messages 1` (та `ollama-chat 1`)
+
+| прогін | провайдер | модель | вхідні | кешовані | вихідні | оцінка входу до виклику | похибка % | $ фактично | $ за прайсом models.ts | затримка, мс | дата |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | gemini | gemini-3.5-flash-lite | 11570 | 0 | 373 | — | — | 0.000000 | 0.004404 | 8169 | 2026-11-15 |
+| 2 | openrouter | inclusionai/ling-3.2-flash:free | 1612 | 576 | 1065 | — | — | 0.000000 | 0.000000 | 105936 | 2026-11-15 |
+| 3 | ollama-messages | qwen3:4b | 9583 | 8412 | 24184 | — | — | 0.000000 | 0.000000 | 3251089 | 2026-11-14 |
+| 4 | ollama-chat | qwen3:4b | 1334 | 948 | 3767 | — | — | 0.000000 | 0.000000 | 828106 | 2026-11-15 |
+
+Посилання на записи сесій у журналі `.agent-log/agent-loop.jsonl`:
+- gemini (gent-loop-gemini-2026-11-15T17-46-45-836Z): [.agent-log/agent-loop.jsonl#L6-L16](https://github.com/ArtuR188/Agent-Engineering/blob/6b259e494d23ca96968f56f94d190c3a61f67370/.agent-log/agent-loop.jsonl#L6-L16)
+- openrouter (gent-loop-openrouter-2026-11-15T17-42-47-334Z): [.agent-log/agent-loop.jsonl#L4-L5](https://github.com/ArtuR188/Agent-Engineering/blob/6b259e494d23ca96968f56f94d190c3a61f67370/.agent-log/agent-loop.jsonl#L4-L5)
+- ollama-messages (gent-loop-ollama-messages-2026-11-14T20-41-51-032Z): [.agent-log/agent-loop.jsonl#L1](https://github.com/ArtuR188/Agent-Engineering/blob/6b259e494d23ca96968f56f94d190c3a61f67370/.agent-log/agent-loop.jsonl#L1)
+- ollama-chat (gent-loop-ollama-chat-2026-11-15T08-00-27-892Z): [.agent-log/agent-loop.jsonl#L2-L3](https://github.com/ArtuR188/Agent-Engineering/blob/6b259e494d23ca96968f56f94d190c3a61f67370/.agent-log/agent-loop.jsonl#L2-L3)
