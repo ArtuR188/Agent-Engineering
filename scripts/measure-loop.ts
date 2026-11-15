@@ -14,14 +14,13 @@ const Proposal = z
   .strict();
 
 const SYSTEM = [
-  '/no_think',
   'Ти агент кодування в цьому репозиторії (Next.js App Router, TypeScript strict, Vitest).',
-  'Маєш лише інструменти читання list_files і read_file. Спершу прочитай src/health.ts і tests/health.test.ts.',
+  'Маєш лише інструменти читання list_files і read_file. Прочитай src/health.ts і tests/health.test.ts.',
   'Коли рішення готове, відповідай БЕЗ викликів інструментів, лише JSON:',
-  '{"summary": "що зроблено", "files": [{"path": "app/api/health/route.ts", "content": "повний вміст файлу"}]}',
+  '{"summary": "що зроблено", "files": [{"path": "app/api/health/route.ts", "content": "import { NextResponse } from \"next/server\";\nimport { getHealth } from \"@/health\";\n\nexport function GET() {\n  return NextResponse.json(getHealth());\n}\n"}]}',
 ].join('\n');
 const TASK =
-  'Додай ендпоінт GET /api/health так, щоб проходив tests/health.test.ts (контракт — src/health.ts). Запропонуй повний вміст файлів. /no_think';
+  'Виклич read_file для src/health.ts та tests/health.test.ts, після чого поверни фінальний JSON з файлом app/api/health/route.ts.';
 
 function pick(kind: string): { model: Model; spec: ModelSpec; form: string } {
   if (kind === 'gemini') {
@@ -40,10 +39,10 @@ function pick(kind: string): { model: Model; spec: ModelSpec; form: string } {
   }
   const spec = MODELS.local;
   if (kind === 'ollama-messages') {
-    return { spec, form: 'messages', model: messagesModel({ url: `${spec.baseUrl}/v1/messages`, model: spec.id, maxTokens: 250, think: false }) };
+    return { spec, form: 'messages', model: messagesModel({ url: `${spec.baseUrl}/v1/messages`, model: spec.id, maxTokens: 2048 }) };
   }
   if (kind === 'ollama-chat') {
-    return { spec, form: 'chat-completions', model: chatCompletionsModel({ url: `${spec.baseUrl}/v1/chat/completions`, model: spec.id, think: false }) };
+    return { spec, form: 'chat-completions', model: chatCompletionsModel({ url: `${spec.baseUrl}/v1/chat/completions`, model: spec.id }) };
   }
   throw new Error(`Невідомий провайдер «${kind}». Є: ollama-messages, ollama-chat, gemini`);
 }

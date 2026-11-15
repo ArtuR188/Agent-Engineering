@@ -21,7 +21,7 @@ async function postJson(o: AdapterOptions, body: unknown): Promise<unknown> {
         body: JSON.stringify(body),
       };
       if (o.fetch === undefined && o.url.includes('googleapis.com')) {
-        init.signal = AbortSignal.timeout(45_000);
+        init.signal = AbortSignal.timeout(90_000);
       }
       const res = await send(o.url, init);
       if (res.ok) return res.json();
@@ -40,7 +40,7 @@ async function postJson(o: AdapterOptions, body: unknown): Promise<unknown> {
       }
       throw err;
     }
-  }
+}
   throw new Error(`${o.url} → вичерпано спроби`);
 }
 
@@ -82,7 +82,7 @@ function toMessagesParam(m: Message): object {
   }
 }
 
-export function messagesModel(o: AdapterOptions & { readonly maxTokens?: number; readonly think?: boolean }): Model {
+export function messagesModel(o: AdapterOptions & { readonly maxTokens?: number }): Model {
   return async (system, messages, tools) => {
     const payload: Record<string, unknown> = {
       model: o.model,
@@ -91,7 +91,6 @@ export function messagesModel(o: AdapterOptions & { readonly maxTokens?: number;
       tools: tools.map((t) => ({ name: t.name, description: t.description, input_schema: t.jsonSchema })),
       messages: messages.map(toMessagesParam),
     };
-    if (o.think !== undefined) payload.think = o.think;
     const data = (await postJson(o, payload)) as MessagesResponse;
     const calls: ToolCall[] = data.content
       .filter((b) => b.type === 'tool_use')
@@ -148,7 +147,7 @@ function toChatMessages(m: Message): object[] {
   }
 }
 
-export function chatCompletionsModel(o: AdapterOptions & { readonly think?: boolean }): Model {
+export function chatCompletionsModel(o: AdapterOptions): Model {
   return async (system, messages, tools) => {
     const payload: Record<string, unknown> = {
       model: o.model,
@@ -158,7 +157,6 @@ export function chatCompletionsModel(o: AdapterOptions & { readonly think?: bool
         function: { name: t.name, description: t.description, parameters: t.jsonSchema },
       })),
     };
-    if (o.think !== undefined) payload.think = o.think;
     const data = (await postJson(o, payload)) as ChatResponse;
     const message = data.choices[0]?.message;
     if (message === undefined) throw new Error('Відповідь без choices[0].message');
