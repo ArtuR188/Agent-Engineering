@@ -91,3 +91,6 @@
 {"ts":"2026-11-14T15:06:39.178Z","tool":"glob","input":{"pattern":"**/*.{ts,tsx}"},"result":"ok","session":"ses_e256774a3ffeksx3RpWnoTlB76","source":"opencode"}
 {"ts":"2026-11-14T15:06:42.134Z","tool":"read","input":{"filePath":"C:\\Users\\Artur\\OneDrive\\Робочий стіл\\Agent Engineering\\Agent-Engineering\\tests\\home.spec.ts"},"result":"ok","session":"ses_e256774a3ffeksx3RpWnoTlB76","source":"opencode"}
 {"ts":"2026-11-14T15:06:42.548Z","tool":"read","input":{"filePath":"C:\\Users\\Artur\\OneDrive\\Робочий стіл\\Agent Engineering\\Agent-Engineering\\package.json"},"result":"ok","session":"ses_e256774a3ffeksx3RpWnoTlB76","source":"opencode"}
+{"ts":"2026-11-16T11:20:14.912Z","agent":"opencode","session":"subagent-spec-auditor-9415544..61ac0ef","tool":"subagent:spec-auditor","target":"git diff 9415544..61ac0ef vs docs/lab2/spec.md","decision":"allow"}
+{"ts":"2026-11-16T11:20:21.772Z","agent":"opencode","session":"subagent-explorer-repo-map","tool":"subagent:explorer","target":"repository entrypoints and verification scripts","decision":"allow"}
+{"ts":"2026-11-16T11:20:29.031Z","agent":"opencode","session":"subagent-isolation-probe","tool":"subagent:spec-auditor","target":"isolation-check: parent conversation memory probe","decision":"allow"}

@@ -27,3 +27,12 @@
   1. Складено та заморожено набір `docs/lab2/golden/queries.jsonl` (20 запитів: 9 `easy`, 5 `hard`, 4 `unanswerable`, 2 `injection`), SHA заморозки — `9bced4d`.
   2. Під час першого прогону `scripts/baseline.ts` без затримки на 17-му запиті (`q-17`) отримано `HTTP 429 Quota exceeded` (ліміт безкоштовного рівня Google AI Studio для `gemini-3.5-flash-lite` становить 15 запитів на хвилину).
   3. Додано інтервал `4200 мс` між запитами у `scripts/baseline.ts` та backoff на `HTTP 429` у `src/agent/adapters.ts`. Повторний прогін усіх 20 запитів пройшов без помилок: точність без документів — `0.0%` (0 із 16, модель чесно відмовляється вигадувати внутрішні тарифи й коди залу), правильні відмови на `unanswerable` — `4 із 4`, стійкість до `injection` — `2 із 2`.
+
+---
+
+## Сесія 3 · 2026-11-16 · Крок 02: Read-only субагенти та ізоляція контексту
+
+- **Дата**: 2026-11-16
+- **Інструмент та модель**: `.claude/agents/spec-auditor.md`, `.claude/agents/explorer.md`, запуск через `runAgentLoop` (`gemini-3.5-flash-lite`) у режимі читання (`list_files`, `read_file`).
+- **Режим дозволів**: Read-only (`tools: Read, Grep, Glob`), без інструментів запису.
+- **Що зроблено**: Створено два read-only субагенти, запущено `spec-auditor` по `git diff 9415544..61ac0ef` і `explorer` по репозиторію, зафіксовано доказ ізоляції контексту та permalink на `.agent-log/`.
