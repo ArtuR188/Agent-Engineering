@@ -108,7 +108,7 @@ export async function evaluateSingleCriterion(
     `Критерій ${criterion.id}: ${criterion.statement}`,
     `Як перевіряється: ${criterion.checker}`,
     '--- ЗМІНА ---',
-    changeText.slice(0, 12_000),
+    changeText.slice(0, 40_000),
   ].join('\n');
 
   let lastError: unknown;

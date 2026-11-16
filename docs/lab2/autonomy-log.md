@@ -36,3 +36,8 @@
 - **Інструмент та модель**: `.claude/agents/spec-auditor.md`, `.claude/agents/explorer.md`, запуск через `runAgentLoop` (`gemini-3.5-flash-lite`) у режимі читання (`list_files`, `read_file`).
 - **Режим дозволів**: Read-only (`tools: Read, Grep, Glob`), без інструментів запису.
 - **Що зроблено**: Створено два read-only субагенти, запущено `spec-auditor` по `git diff 9415544..61ac0ef` і `explorer` по репозиторію, зафіксовано доказ ізоляції контексту та permalink на `.agent-log/`.
+
+## Крок 03 — Верифікатор на іншій моделі та брама в CI (2026-11-16)
+- **Режим автономності:** людина в циклі на етапі калібрування рубрики та перевірки блокування злиття (`5c1c6e3`).
+- **Модель-автор:** `gemini-3.5-flash-lite`; **модель-верифікатор:** `deepseek/deepseek-v4.1-flash` через OpenRouter (`VERIFIER_MODEL`).
+- **Що зроблено:** реалізовано Zod-схему (`src/verify/schema.ts`), скрипт брами (`scripts/verify.ts`), 9 тестів (`tests/verify.test.ts`), CI-воркфлоу (`.github/workflows/verify-gate.yml`), калібрування 8/10 (80%, `docs/lab2/traces/calibration-report.json`) та зафіксовано блокування коміту `5c1c6e3` (`A4 | fail`, `exit code 1`) із виправленням (`docs/lab2/verifier.md`, `docs/lab2/traces/verify-final.json`).
