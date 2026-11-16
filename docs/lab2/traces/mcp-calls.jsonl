@@ -1,0 +1,5 @@
+{"ts":"2026-11-16T22:35:02.688Z","source":"unknown","tool":"search_corpus","args":{"query":"батут","topK":5},"result":"ok","hits":5}
+{"ts":"2026-11-16T22:35:09.721Z","source":"unknown","tool":"fetch_chunk","args":{"id":"doc-99#0000"},"result":"refused","why":"Error: фрагмента doc-99#0000 немає в індексі"}
+{"ts":"2026-11-16T22:47:34.168Z","source":"lab2-app","tool":"search_corpus","args":{"query":"батут","topK":3},"result":"ok","hits":3}
+{"ts":"2026-11-16T22:47:34.173Z","source":"lab2-app","tool":"fetch_chunk","args":{"id":"doc-01#0000"},"result":"ok"}
+{"ts":"2026-11-16T22:47:34.175Z","source":"lab2-app","tool":"fetch_chunk","args":{"id":"doc-99#0000"},"result":"refused","why":"Error: фрагмента doc-99#0000 немає в індексі"}
