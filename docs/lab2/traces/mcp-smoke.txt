@@ -1,0 +1,17 @@
+--- tools/list ---
+{"result":{"tools":[{"name":"search_corpus",...},{"name":"fetch_chunk",...}]}}
+
+--- search_corpus query="батут" ---
+[doc-02#0001] doc-02 › Техніка безпеки на батутах та акробатичній доріжці AirTrack...
+
+--- fetch_chunk id=doc-99#0000 ---
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "фрагмента doc-99#0000 немає в індексі"
+    }
+  ],
+  "isError": true
+}
+{"error":{"code":"tool_is_error","message":"Tool 'fetch_chunk' returned isError:true."}}
