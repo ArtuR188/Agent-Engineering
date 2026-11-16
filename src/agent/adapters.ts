@@ -26,8 +26,9 @@ async function postJson(o: AdapterOptions, body: unknown): Promise<unknown> {
       const res = await send(o.url, init);
       if (res.ok) return res.json();
       const errText = (await res.text()).slice(0, 500);
-      if ((res.status === 503 || res.status === 502 || res.status === 504) && attempt < maxAttempts) {
-        await new Promise((r) => setTimeout(r, 3000 * attempt));
+      if ((res.status === 429 || res.status === 503 || res.status === 502 || res.status === 504) && attempt < maxAttempts) {
+        const delayMs = res.status === 429 ? 15_000 * attempt : 3000 * attempt;
+        await new Promise((r) => setTimeout(r, delayMs));
         continue;
       }
       throw new Error(`${o.url} → HTTP ${res.status}: ${errText}`);
@@ -40,7 +41,7 @@ async function postJson(o: AdapterOptions, body: unknown): Promise<unknown> {
       }
       throw err;
     }
-}
+  }
   throw new Error(`${o.url} → вичерпано спроби`);
 }
 
@@ -152,10 +153,14 @@ export function chatCompletionsModel(o: AdapterOptions): Model {
     const payload: Record<string, unknown> = {
       model: o.model,
       messages: [{ role: 'system', content: system }, ...messages.flatMap(toChatMessages)],
-      tools: tools.map((t) => ({
-        type: 'function',
-        function: { name: t.name, description: t.description, parameters: t.jsonSchema },
-      })),
+      ...(tools.length > 0
+        ? {
+            tools: tools.map((t) => ({
+              type: 'function',
+              function: { name: t.name, description: t.description, parameters: t.jsonSchema },
+            })),
+          }
+        : {}),
     };
     const data = (await postJson(o, payload)) as ChatResponse;
     const message = data.choices[0]?.message;
