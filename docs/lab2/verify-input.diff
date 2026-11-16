@@ -1,0 +1,511 @@
+diff --git a/.env.example b/.env.example
+index 6167395..7d383d0 100644
+--- a/.env.example
++++ b/.env.example
+@@ -49,3 +49,6 @@ LANGFUSE_SECRET_KEY=
+ LANGFUSE_BASE_URL=
+ OPENROUTER_API_KEY=
+ OPENROUTER_MODEL=
++
++# Крок 03: модель верифікатора з іншої родини/провайдера (без ключа)
++VERIFIER_MODEL=qwen/qwen3-coder:free
+diff --git a/package.json b/package.json
+index 7223909..7406608 100644
+--- a/package.json
++++ b/package.json
+@@ -17,7 +17,8 @@
+     "e2e": "playwright test",
+     "doctor": "tsx scripts/doctor.ts",
+     "sync-skills": "tsx scripts/sync-skills.ts",
+-    "log:import": "tsx scripts/transcript-to-jsonl.ts"
++    "log:import": "tsx scripts/transcript-to-jsonl.ts",
++    "verify": "tsx scripts/verify.ts docs/lab2/verify-input.diff"
+   },
+   "dependencies": {
+     "@ai-sdk/google": "^4.0.121",
+diff --git a/.github/workflows/verify-gate.yml b/.github/workflows/verify-gate.yml
+new file mode 100644
+index 0000000..3cc6952
+--- /dev/null
++++ b/.github/workflows/verify-gate.yml
+@@ -0,0 +1,27 @@
++name: Verify Gate (Lab 2 Step 03)
++
++on:
++  pull_request:
++    branches: [main]
++  push:
++    branches: [main]
++
++jobs:
++  verify:
++    runs-on: ubuntu-latest
++    steps:
++      - uses: actions/checkout@v4
++      - uses: actions/setup-node@v4
++        with:
++          node-version: 24
++          cache: npm
++      - run: npm ci
++      - run: npm run typecheck
++      - run: npm run lint
++      - run: npm test
++      - run: npm run build
++      - name: Cross-model verifier gate
++        env:
++          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
++          VERIFIER_MODEL: ${{ vars.VERIFIER_MODEL }}
++        run: npm run verify
+\ No newline at end of file
+diff --git a/scripts/verify.ts b/scripts/verify.ts
+new file mode 100644
+index 0000000..9696dc9
+--- /dev/null
++++ b/scripts/verify.ts
+@@ -0,0 +1,226 @@
++import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
++import { dirname } from 'node:path';
++import {
++  criterionVerdict,
++  isBlocked,
++  type CriterionVerdict,
++  type VerifyReport,
++} from '../src/verify/schema';
++
++export interface SpecCriterion {
++  readonly id: string;
++  readonly statement: string;
++  readonly checker: string;
++}
++
++/** Витягує критерії приймання (A1..AN) з docs/lab2/spec.md. */
++export function parseSpecCriteria(specText: string): SpecCriterion[] {
++  const lines = specText.replace(/^\uFEFF/, '').split(/\r?\n/);
++  const items: SpecCriterion[] = [];
++  for (const line of lines) {
++    const trimmed = line.trim();
++    if (!trimmed.startsWith('|')) continue;
++    const cols = trimmed
++      .slice(1, -1)
++      .split('|')
++      .map((c) => c.trim());
++    if (cols.length < 3) continue;
++    const id = (cols[0] ?? '').replace(/^\*\*|\*\*$/g, '').trim();
++    if (!/^A\d+$/.test(id)) continue;
++    items.push({
++      id,
++      statement: cols[1] ?? '',
++      checker: cols[2] ?? '',
++    });
++  }
++  return items;
++}
++
++/** Видаляє .env* із diff і маскує секрети перед відправкою в модель верифікатора. */
++export function sanitizeDiff(raw: string): string {
++  const lines = raw.replace(/^\uFEFF/, '').split(/\r?\n/);
++  const filtered: string[] = [];
++  let skippingEnvFile = false;
++
++  for (const line of lines) {
++    if (line.startsWith('diff --git ')) {
++      skippingEnvFile = /(?:^|\s|a\/|b\/)\.env(?:\.|$)/i.test(line);
++      if (skippingEnvFile) continue;
++    }
++    if (skippingEnvFile) continue;
++    if (/^(?:---|\+\+\+)\s+[ab]\/\.env(?:\.|$)/i.test(line)) continue;
++
++    const redacted = line
++      .replace(/(^|[^A-Za-z0-9_])([A-Za-z0-9_]*(?:API_KEY|SECRET|TOKEN|PASSWORD))\s*[:=]\s*["']?[^\s"']+/gi, '$1$2=[REDACTED]')
++      .replace(/Bearer\s+[A-Za-z0-9._-]+/gi, 'Bearer [REDACTED]');
++    filtered.push(redacted);
++  }
++
++  return filtered.join('\n');
++}
++
++function cleanEnv(v: string | undefined): string {
++  return (v ?? '').trim().replace(/^["']|["']$/g, '');
++}
++
++function extractJsonObject(text: string): unknown {
++  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
++  const candidate = (fenced?.[1] ?? text).trim();
++  const start = candidate.indexOf('{');
++  const end = candidate.lastIndexOf('}');
++  if (start === -1 || end === -1 || end < start) {
++    throw new Error('Відповідь моделі не містить JSON-обʼєкта');
++  }
++  return JSON.parse(candidate.slice(start, end + 1));
++}
++
++export type JudgeFn = (system: string, user: string) => Promise<string>;
++
++/** Перевіряє один критерій; при невалідній відповіді перепитує 1 раз і падає з помилкою. */
++export async function evaluateSingleCriterion(
++  criterion: SpecCriterion,
++  changeText: string,
++  judge: JudgeFn,
++): Promise<CriterionVerdict> {
++  const system = [
++    'Ти — незалежний верифікатор змін (інша модель, ніж автор коду).',
++    'Оціни РІВНО ОДИН критерій приймання за наданою зміною.',
++    'Поверни СТРОГО валідний JSON без зайвого тексту за схемою:',
++    '{"id":"<id>","verdict":"pass|fail|unknown","reason":"<1-2 речення>","evidence":"<файл/рядок або порожньо для unknown>"}',
++    'Правила:',
++    '- pass: у зміні є прямий доказ виконання критерію; evidence вказує файл/рядок або цитату.',
++    '- fail: у зміні є прямий доказ порушення або відсутності обовʼязкового елемента; evidence вказує файл/рядок або цитату.',
++    '- unknown: у зміні недостатньо даних для висновку; evidence має бути порожнім рядком "".',
++    '- Заборонено вигадувати докази або давати загальні поради.',
++  ].join('\n');
++
++  const user = [
++    `Критерій ${criterion.id}: ${criterion.statement}`,
++    `Як перевіряється: ${criterion.checker}`,
++    '--- ЗМІНА ---',
++    changeText.slice(0, 12_000),
++  ].join('\n');
++
++  let lastError: unknown;
++  for (let attempt = 1; attempt <= 2; attempt++) {
++    const rawResponse = await judge(
++      attempt === 1
++        ? system
++        : `${system}\nПопередня відповідь не пройшла схему Zod. Поверни ЛИШЕ чистий JSON-обʼєєкт.`,
++      user,
++    );
++    try {
++      const parsedJson = extractJsonObject(rawResponse);
++      const parsed = criterionVerdict.safeParse(parsedJson);
++      if (!parsed.success) {
++        throw new Error(parsed.error.issues.map((i) => i.message).join('; '));
++      }
++      if (parsed.data.id !== criterion.id) {
++        throw new Error(`Очікувався id=${criterion.id}, отримано ${parsed.data.id}`);
++      }
++      return parsed.data;
++    } catch (err) {
++      lastError = err;
++    }
++  }
++
++  throw new Error(
++    `Верифікатор не повернув валідний вердикт для ${criterion.id} після 2 спроб: ${
++      lastError instanceof Error ? lastError.message : String(lastError)
++    }`,
++  );
++}
++
++function sleep(ms: number): Promise<void> {
++  return new Promise((resolve) => setTimeout(resolve, ms));
++}
++
++function createOpenRouterJudge(modelId: string, apiKey: string): JudgeFn {
++  return async (system, user) => {
++    for (let tryNum = 1; tryNum <= 3; tryNum++) {
++      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
++        method: 'POST',
++        headers: {
++          'content-type': 'application/json',
++          authorization: `Bearer ${apiKey}`,
++        },
++        body: JSON.stringify({
++          model: modelId,
++          temperature: 0,
++          messages: [
++            { role: 'system', content: system },
++            { role: 'user', content: user },
++          ],
++        }),
++      });
++      if (res.status === 429 && tryNum < 3) {
++        await sleep(4500 * tryNum);
++        continue;
++      }
++      if (!res.ok) {
++        const body = await res.text();
++        throw new Error(`OpenRouter HTTP ${res.status}: ${body.slice(0, 300)}`);
++      }
++      const data = (await res.json()) as {
++        choices?: readonly { message?: { content?: string } }[];
++      };
++      return data.choices?.[0]?.message?.content ?? '';
++    }
++    throw new Error('OpenRouter вичерпав спроби через HTTP 429');
++  };
++}
++
++export async function runVerify(
++  specPath: string,
++  diffPath: string,
++  judge: JudgeFn,
++): Promise<VerifyReport> {
++  const specText = readFileSync(specPath, 'utf8');
++  const criteria = parseSpecCriteria(specText);
++  if (criteria.length === 0) {
++    throw new Error(`Не знайдено критеріїв A1..AN у ${specPath}`);
++  }
++  const rawDiff = readFileSync(diffPath, 'utf8');
++  const safeDiff = sanitizeDiff(rawDiff).trim();
++  if (!safeDiff) {
++    throw new Error(`Файл ${diffPath} порожній після санітизації`);
++  }
++  const results: CriterionVerdict[] = [];
++  for (const c of criteria) {
++    results.push(await evaluateSingleCriterion(c, safeDiff, judge));
++    await sleep(1200);
++  }
++  return { results };
++}
++
++if (process.argv[1] && /(?:^|[\\/])verify\.(?:ts|js)$/.test(process.argv[1])) {
++  (async () => {
++    const diffPath = process.argv[2] ?? 'docs/lab2/verify-input.diff';
++    const specPath = process.argv[3] ?? 'docs/lab2/spec.md';
++    const outJsonPath = process.argv[4];
++    const apiKey = cleanEnv(process.env.OPENROUTER_API_KEY);
++    const modelId =
++      cleanEnv(process.env.VERIFIER_MODEL) ||
++      cleanEnv(process.env.OPENROUTER_MODEL) ||
++      'qwen/qwen3-coder:free';
++    if (!apiKey) {
++      throw new Error('OPENROUTER_API_KEY порожній у .env.local (потрібен інший провайдер для верифікатора)');
++    }
++    const judge = createOpenRouterJudge(modelId, apiKey);
++    const report = await runVerify(specPath, diffPath, judge);
++    for (const r of report.results) {
++      console.log(`${r.id} | ${r.verdict} | ${r.reason} | evidence=${r.evidence}`);
++    }
++    if (outJsonPath) {
++      mkdirSync(dirname(outJsonPath), { recursive: true });
++      writeFileSync(outJsonPath, JSON.stringify(report, null, 2) + '\n', 'utf8');
++    }
++    if (isBlocked(report)) {
++      console.error('БРАМА ВЕРИФІКАТОРА: знайдено fail — злиття заблоковано.');
++      process.exit(1);
++    }
++  })().catch((err) => {
++    console.error(err instanceof Error ? err.message : err);
++    process.exit(1);
++  });
++}
+\ No newline at end of file
+diff --git a/src/verify/schema.ts b/src/verify/schema.ts
+new file mode 100644
+index 0000000..72d5ace
+--- /dev/null
++++ b/src/verify/schema.ts
+@@ -0,0 +1,57 @@
++import { z } from 'zod';
++
++/** Один критерій приймання зі spec.md — один запис вердикту. */
++export const criterionVerdict = z
++  .object({
++    /** Номер критерію з docs/lab2/spec.md, дослівно. */
++    id: z.string().min(1),
++    /** unknown — аварійний вихід: даних у наданій зміні недостатньо для судження. */
++    verdict: z.enum(['pass', 'fail', 'unknown']),
++    /** Чому саме так. Одне-два речення, без загальних порад. */
++    reason: z.string().min(1),
++    /** Файл і рядок або цитата зі зміни; порожньо лише для unknown. */
++    evidence: z.string(),
++  })
++  .strict()
++  .superRefine((val, ctx) => {
++    if (val.verdict === 'unknown') {
++      if (val.evidence.trim() !== '') {
++        ctx.addIssue({
++          code: z.ZodIssueCode.custom,
++          message: 'Для verdict="unknown" поле evidence має бути порожнім рядком',
++          path: ['evidence'],
++        });
++      }
++    } else if (val.evidence.trim() === '') {
++      ctx.addIssue({
++        code: z.ZodIssueCode.custom,
++        message: 'Для verdict="pass" або "fail" потрібне непорожнє evidence',
++        path: ['evidence'],
++      });
++    }
++  });
++
++export const verifyReport = z
++  .object({ results: z.array(criterionVerdict).min(1) })
++  .strict()
++  .superRefine((val, ctx) => {
++    const seen = new Set<string>();
++    for (const r of val.results) {
++      if (seen.has(r.id)) {
++        ctx.addIssue({
++          code: z.ZodIssueCode.custom,
++          message: `Дублікат критерію id="${r.id}" у verifyReport`,
++          path: ['results'],
++        });
++      }
++      seen.add(r.id);
++    }
++  });
++
++export type CriterionVerdict = z.infer<typeof criterionVerdict>;
++export type VerifyReport = z.infer<typeof verifyReport>;
++
++/** Брама: червоно, щойно є хоч один fail. unknown браму не валить, але потрапляє у звіт. */
++export function isBlocked(report: VerifyReport): boolean {
++  return report.results.some((r) => r.verdict === 'fail');
++}
+\ No newline at end of file
+diff --git a/tests/verify.test.ts b/tests/verify.test.ts
+new file mode 100644
+index 0000000..726b9a2
+--- /dev/null
++++ b/tests/verify.test.ts
+@@ -0,0 +1,148 @@
++import { describe, expect, it } from 'vitest';
++import {
++  evaluateSingleCriterion,
++  parseSpecCriteria,
++  sanitizeDiff,
++  type SpecCriterion,
++} from '../scripts/verify';
++import { criterionVerdict, isBlocked, verifyReport } from '../src/verify/schema';
++
++const C1: SpecCriterion = {
++  id: 'A1',
++  statement: 'Усі тести проходять',
++  checker: 'npm test',
++};
++
++describe('src/verify/schema', () => {
++  it('приймає валідні вердикти pass, fail, unknown', () => {
++    const report = verifyReport.parse({
++      results: [
++        { id: 'A1', verdict: 'pass', reason: 'Тести проходять', evidence: 'tests/validate-golden.test.ts:1' },
++        { id: 'A2', verdict: 'fail', reason: 'Відсутній файл', evidence: 'docs/lab2/baseline.md' },
++        { id: 'A3', verdict: 'unknown', reason: 'У diff немає даних', evidence: '' },
++      ],
++    });
++    expect(report.results).toHaveLength(3);
++    expect(isBlocked(report)).toBe(true);
++  });
++
++  it('не блокує при pass і unknown без fail', () => {
++    const report = verifyReport.parse({
++      results: [
++        { id: 'A1', verdict: 'pass', reason: 'Ок', evidence: 'package.json:1' },
++        { id: 'A2', verdict: 'unknown', reason: 'Немає у diff', evidence: '' },
++      ],
++    });
++    expect(isBlocked(report)).toBe(false);
++  });
++
++  it('вимагає порожній evidence для unknown і непорожній для pass/fail', () => {
++    expect(
++      criterionVerdict.safeParse({
++        id: 'A1',
++        verdict: 'unknown',
++        reason: 'Немає у diff',
++        evidence: 'src/a.ts:1',
++      }).success,
++    ).toBe(false);
++
++    expect(
++      criterionVerdict.safeParse({
++        id: 'A1',
++        verdict: 'pass',
++        reason: 'Є доказ',
++        evidence: '',
++      }).success,
++    ).toBe(false);
++  });
++
++  it('відхиляє дублікати id, невідомий verdict або зайві поля', () => {
++    expect(
++      verifyReport.safeParse({
++        results: [
++          { id: 'A1', verdict: 'pass', reason: 'Ок', evidence: 'a.ts:1' },
++          { id: 'A1', verdict: 'pass', reason: 'Дублікат', evidence: 'a.ts:2' },
++        ],
++      }).success,
++    ).toBe(false);
++
++    expect(
++      criterionVerdict.safeParse({
++        id: 'A1',
++        verdict: 'maybe',
++        reason: 'Тест',
++        evidence: '',
++      }).success,
++    ).toBe(false);
++
++    expect(
++      criterionVerdict.safeParse({
++        id: 'A1',
++        verdict: 'pass',
++        reason: 'Тест',
++        evidence: 'a.ts:1',
++        extra: true,
++      }).success,
++    ).toBe(false);
++  });
++
++  it('відхиляє порожній масив results', () => {
++    expect(verifyReport.safeParse({ results: [] }).success).toBe(false);
++  });
++});
++
++describe('scripts/verify', () => {
++  it('парсить критерії A1..AN зі спеки', () => {
++    const spec = [
++      '## 6. Критерії приймання',
++      '| # | Критерій | Перевірка |',
++      '| --- | --- | --- |',
++      '| A1 | Тести зелені | npm test |',
++      '| A2 | Набір валідний | npx tsx scripts/validate-golden.ts |',
++    ].join('\n');
++    const items = parseSpecCriteria(spec);
++    expect(items).toEqual([
++      { id: 'A1', statement: 'Тести зелені', checker: 'npm test' },
++      { id: 'A2', statement: 'Набір валідний', checker: 'npx tsx scripts/validate-golden.ts' },
++    ]);
++  });
++
++  it('видаляє .env.local із diff і маскує ключі', () => {
++    const raw = [
++      'diff --git a/.env.local b/.env.local',
++      '--- a/.env.local',
++      '+++ b/.env.local',
++      '+OPENROUTER_API_KEY=sk-secret-value',
++      'diff --git a/src/a.ts b/src/a.ts',
++      '+const API_KEY = "my-secret";',
++      '+const header = "Bearer abc.def.ghi";',
++    ].join('\n');
++    const clean = sanitizeDiff(raw);
++    expect(clean).not.toContain('.env.local');
++    expect(clean).not.toContain('sk-secret-value');
++    expect(clean).not.toContain('my-secret');
++    expect(clean).toContain('[REDACTED]');
++  });
++
++  it('перепитує 1 раз при невалідному JSON і повертає валідний вердикт', async () => {
++    let calls = 0;
++    const res = await evaluateSingleCriterion(C1, 'diff --git a/a.ts b/a.ts', async () => {
++      calls++;
++      if (calls === 1) return 'не JSON';
++      return JSON.stringify({
++        id: 'A1',
++        verdict: 'pass',
++        reason: 'Знайдено тест',
++        evidence: 'tests/a.test.ts:1',
++      });
++    });
++    expect(calls).toBe(2);
++    expect(res.verdict).toBe('pass');
++  });
++
++  it('падає з помилкою після 2 невалідних спроб', async () => {
++    await expect(
++      evaluateSingleCriterion(C1, 'diff --git a/a.ts b/a.ts', async () => 'still not json'),
++    ).rejects.toThrow(/після 2 спроб/);
++  });
++});
+\ No newline at end of file

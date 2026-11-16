@@ -1,0 +1,40 @@
+{
+  "results": [
+    {
+      "id": "A1",
+      "verdict": "unknown",
+      "reason": "Зміна додає кроки `npm run typecheck`, `npm run lint`, `npm test`, `npm run build` у CI-воркфлоу, але не містить жодного виводу чи результатів прогону, які б підтверджували, що ці команди проходять без помилок.",
+      "evidence": ""
+    },
+    {
+      "id": "A2",
+      "verdict": "unknown",
+      "reason": "Зміна не торкається файлу docs/lab2/golden/queries.jsonl і не містить scripts/validate-golden.ts, тож ні наявність ≥20 запитів, ні проходження валідатора за цією зміною перевірити неможливо.",
+      "evidence": ""
+    },
+    {
+      "id": "A3",
+      "verdict": "unknown",
+      "reason": "Надана зміна містить лише нові файли верифікатора (scripts/verify.ts, src/verify/schema.ts, workflow, тести) і не включає ні docs/lab2/spec.md, ні історію git-комітів, ні вміст .agent-log/*.jsonl, тож перевірити порядок комітів чи наявність записів редагування неможливо.",
+      "evidence": ""
+    },
+    {
+      "id": "A4",
+      "verdict": "fail",
+      "reason": "Критерій вимагає запису в docs/lab2/verifier.md про щонайменше одне зупинене злиття через знайдену помилку, але цей файл відсутній у зміні. Додано лише механізм брами (scripts/verify.ts, src/verify/schema.ts, workflow), без доказу фактичного блокування злиття.",
+      "evidence": "diff не містить docs/lab2/verifier.md; наявні лише .github/workflows/verify-gate.yml, scripts/verify.ts, src/verify/schema.ts, tests/verify.test.ts"
+    },
+    {
+      "id": "A5",
+      "verdict": "unknown",
+      "reason": "Зміна додає інфраструктуру верифікатора (scripts/verify.ts, schema.ts, workflow), але не містить жодних даних про результати `npx tsx scripts/run-eval.ts` чи таблицю в `docs/lab2/eval-report.md`, тож оцінити точність, покриття цитатами чи відмови на `unanswerable` неможливо.",
+      "evidence": ""
+    },
+    {
+      "id": "A6",
+      "verdict": "unknown",
+      "reason": "Зміна додає скрипт крос-модельної верифікації, Zod-схему та CI-браму, але не містить жодних файлів MCP-сервера, тестів безпеки чи логу викликів у docs/lab2/mcp-integration.md, тож підтвердити або спростувати критерій неможливо.",
+      "evidence": ""
+    }
+  ]
+}

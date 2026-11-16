@@ -1,0 +1,138 @@
+{
+  "modelId": "deepseek/deepseek-v4.1-flash",
+  "total": 10,
+  "matched": 8,
+  "unknowns": 4,
+  "results": [
+    {
+      "index": 1,
+      "label": "Коміт 9415544: додано docs/lab2/spec.md (лише спека)",
+      "criterionId": "A1",
+      "manualVerdict": "unknown",
+      "judgeVerdict": {
+        "id": "A1",
+        "verdict": "unknown",
+        "reason": "Зміна містить лише новий файл документації docs/lab2/spec.md з описом критерію, але немає жодних доказів фактичного прогону npm test/typecheck/lint/build чи результатів CI.",
+        "evidence": ""
+      },
+      "match": true
+    },
+    {
+      "index": 2,
+      "label": "Коміт 9bced4d: додано validate-golden.ts з порогом 20 і 20 запитів у queries.jsonl",
+      "criterionId": "A2",
+      "manualVerdict": "pass",
+      "judgeVerdict": {
+        "id": "A2",
+        "verdict": "pass",
+        "reason": "Зміна додає у docs/lab2/golden/queries.jsonl записи від q-01 до q-20 (20 запитів), а у валідаторі встановлено поріг SUBMIT total:20, що відповідає критерію ≥20 запитів.",
+        "evidence": "docs/lab2/golden/queries.jsonl: +{\"id\":\"q-01\"...} ... +{\"id\":\"q-20\"...}; scripts/validate-golden.ts: SUBMIT = { total: 20, ... }"
+      },
+      "match": true
+    },
+    {
+      "index": 3,
+      "label": "Неповний diff 9bced4d: змінено лише tests/validate-golden.test.ts без queries.jsonl",
+      "criterionId": "A2",
+      "manualVerdict": "unknown",
+      "judgeVerdict": {
+        "id": "A2",
+        "verdict": "unknown",
+        "reason": "Зміна додає лише тривіальний тест у tests/validate-golden.test.ts і не містить жодних даних про вміст docs/lab2/golden/queries.jsonl чи результат роботи валідатора.",
+        "evidence": ""
+      },
+      "match": true
+    },
+    {
+      "index": 4,
+      "label": "Дефектний diff: у queries.jsonl лише 5 запитів замість ≥ 20",
+      "criterionId": "A2",
+      "manualVerdict": "fail",
+      "judgeVerdict": {
+        "id": "A2",
+        "verdict": "fail",
+        "reason": "У зміні додано лише 5 запитів (q-01…q-05), що менше обовʼязкових 20, тому критерій кількості не виконано. Доказів проходження валідатора також немає.",
+        "evidence": "docs/lab2/golden/queries.jsonl: +{\"id\":\"q-01\"} … +{\"id\":\"q-05\"} (5 рядків)"
+      },
+      "match": true
+    },
+    {
+      "index": 5,
+      "label": "Коміт 61ac0ef: додано baseline.md без згадки git log або .agent-log",
+      "criterionId": "A3",
+      "manualVerdict": "unknown",
+      "judgeVerdict": {
+        "id": "A3",
+        "verdict": "unknown",
+        "reason": "Надана зміна містить лише додавання docs/lab2/baseline.md і не показує історію комітів для docs/lab2/spec.md чи вміст .agent-log/*.jsonl.",
+        "evidence": ""
+      },
+      "match": true
+    },
+    {
+      "index": 6,
+      "label": "Лог перевірки A3: git log показує 9415544 до 9bced4d, пошук у .agent-log/*.jsonl дав 0 збігів",
+      "criterionId": "A3",
+      "manualVerdict": "pass",
+      "judgeVerdict": {
+        "id": "A3",
+        "verdict": "unknown",
+        "reason": "Зміна містить лише файл audit-a3.txt із самостійно задекларованими результатами git log та Select-String, але не містить самого spec.md, історії комітів або вмісту .agent-log для незалежної перевірки.",
+        "evidence": ""
+      },
+      "match": false
+    },
+    {
+      "index": 7,
+      "label": "Дефектний лог A3: у .agent-log/opencode.jsonl є tool=edit для docs/lab2/spec.md",
+      "criterionId": "A3",
+      "manualVerdict": "fail",
+      "judgeVerdict": {
+        "id": "A3",
+        "verdict": "fail",
+        "reason": "У зміні додано запис редагування `docs/lab2/spec.md` у лог агента, що прямо порушує вимогу відсутності таких записів у `.agent-log/*.jsonl`.",
+        "evidence": ".agent-log/opencode.jsonl: +{\"tool\":\"edit\",\"path\":\"docs/lab2/spec.md\",\"ok\":true}"
+      },
+      "match": true
+    },
+    {
+      "index": 8,
+      "label": "Крок 03 без verifier.md: є scripts/verify.ts і verify-gate.yml, але docs/lab2/verifier.md відсутній",
+      "criterionId": "A4",
+      "manualVerdict": "fail",
+      "judgeVerdict": {
+        "id": "A4",
+        "verdict": "fail",
+        "reason": "У наданій зміні відсутні обовʼязкові докази: немає запису в docs/lab2/verifier.md і немає тестів верифікатора, які б підтверджували зупинку злиття через знайдену помилку. Додано лише заглушку runVerify та workflow-крок npm run verify.",
+        "evidence": "scripts/verify.ts: +export async function runVerify(...) {}; .github/workflows/verify-gate.yml: +run: npm run verify"
+      },
+      "match": true
+    },
+    {
+      "index": 9,
+      "label": "Крок 03 з docs/lab2/verifier.md (зафіксовано стоп злиття) і tests/verify.test.ts",
+      "criterionId": "A4",
+      "manualVerdict": "pass",
+      "judgeVerdict": {
+        "id": "A4",
+        "verdict": "fail",
+        "reason": "Зміна містить лише текстове твердження в docs/lab2/verifier.md та порожній тестовий блок, без фактичного коду верифікатора чи тесту, який підтверджує зупинку злиття через знайдену помилку.",
+        "evidence": "tests/verify.test.ts: describe(\"scripts/verify\", () => {})"
+      },
+      "match": false
+    },
+    {
+      "index": 10,
+      "label": "Дефектний CI workflow: з verify-gate.yml видалено npm test і npm run build",
+      "criterionId": "A1",
+      "manualVerdict": "fail",
+      "judgeVerdict": {
+        "id": "A1",
+        "verdict": "fail",
+        "reason": "Зміна видаляє кроки `npm test` та `npm run build` з CI-воркфлоу, тому критерій проходження всіх чотирьох команд у CI більше не виконується.",
+        "evidence": ".github/workflows/verify-gate.yml: видалено рядки `- run: npm test` та `- run: npm run build`"
+      },
+      "match": true
+    }
+  ]
+}
