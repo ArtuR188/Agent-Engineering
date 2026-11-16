@@ -1,0 +1,865 @@
+{
+  "runAt": "2026-11-16T20:07:19.257Z",
+  "k": 5,
+  "model": "gemini-3.5-flash-lite (Google OpenAI-compat API)",
+  "setFile": "docs/lab2/golden/queries.jsonl",
+  "rows": [
+    {
+      "id": "q-01",
+      "tags": [
+        "easy"
+      ],
+      "must_cite": [
+        "doc-01"
+      ],
+      "hits": [
+        {
+          "docId": "doc-01",
+          "chunkId": "doc-01#0002"
+        },
+        {
+          "docId": "doc-09",
+          "chunkId": "doc-09#0002"
+        },
+        {
+          "docId": "doc-01",
+          "chunkId": "doc-01#0001"
+        },
+        {
+          "docId": "doc-06",
+          "chunkId": "doc-06#0001"
+        },
+        {
+          "docId": "doc-01",
+          "chunkId": "doc-01#0000"
+        }
+      ],
+      "recallAtK": 1,
+      "reciprocalRank": 1,
+      "answer": "Місячний абонемент Pro-Flip коштує 1650 грн [doc-01#0002].",
+      "citedDocs": [
+        "doc-01"
+      ],
+      "inputTokens": 1327,
+      "outputTokens": 29,
+      "latencyMs": 1553,
+      "verdict": "correct",
+      "baselineVerdict": "refused",
+      "citationCorrect": true
+    },
+    {
+      "id": "q-02",
+      "tags": [
+        "easy"
+      ],
+      "must_cite": [
+        "doc-02"
+      ],
+      "hits": [
+        {
+          "docId": "doc-02",
+          "chunkId": "doc-02#0002"
+        },
+        {
+          "docId": "doc-10",
+          "chunkId": "doc-10#0001"
+        },
+        {
+          "docId": "doc-06",
+          "chunkId": "doc-06#0001"
+        },
+        {
+          "docId": "doc-06",
+          "chunkId": "doc-06#0003"
+        },
+        {
+          "docId": "doc-02",
+          "chunkId": "doc-02#0001"
+        }
+      ],
+      "recallAtK": 1,
+      "reciprocalRank": 1,
+      "answer": "На олімпійських сітках Eurotramp діє суворе обмеження по максимальній вазі стрибуна — 115 кг (включно з екіпіруванням) [doc-02#0002].",
+      "citedDocs": [
+        "doc-02"
+      ],
+      "inputTokens": 1441,
+      "outputTokens": 54,
+      "latencyMs": 1380,
+      "verdict": "correct",
+      "baselineVerdict": "refused",
+      "citationCorrect": true
+    },
+    {
+      "id": "q-03",
+      "tags": [
+        "easy"
+      ],
+      "must_cite": [
+        "doc-03"
+      ],
+      "hits": [
+        {
+          "docId": "doc-03",
+          "chunkId": "doc-03#0001"
+        },
+        {
+          "docId": "doc-03",
+          "chunkId": "doc-03#0003"
+        },
+        {
+          "docId": "doc-07",
+          "chunkId": "doc-07#0002"
+        },
+        {
+          "docId": "doc-03",
+          "chunkId": "doc-03#0002"
+        },
+        {
+          "docId": "doc-07",
+          "chunkId": "doc-07#0001"
+        }
+      ],
+      "recallAtK": 1,
+      "reciprocalRank": 1,
+      "answer": "Мінімальна глибина поролонової ями становить 2.4 м [doc-03#0001].",
+      "citedDocs": [
+        "doc-03"
+      ],
+      "inputTokens": 1319,
+      "outputTokens": 29,
+      "latencyMs": 2017,
+      "verdict": "partial",
+      "baselineVerdict": "refused",
+      "citationCorrect": true
+    },
+    {
+      "id": "q-04",
+      "tags": [
+        "easy"
+      ],
+      "must_cite": [
+        "doc-04"
+      ],
+      "hits": [
+        {
+          "docId": "doc-04",
+          "chunkId": "doc-04#0001"
+        },
+        {
+          "docId": "doc-04",
+          "chunkId": "doc-04#0002"
+        },
+        {
+          "docId": "doc-08",
+          "chunkId": "doc-08#0002"
+        },
+        {
+          "docId": "doc-10",
+          "chunkId": "doc-10#0001"
+        },
+        {
+          "docId": "doc-09",
+          "chunkId": "doc-09#0001"
+        }
+      ],
+      "recallAtK": 1,
+      "reciprocalRank": 1,
+      "answer": "Помилка T-204 означає розряд резервного акумулятора зчитувача RFID-міток у стійці турнікета [doc-04#0001]. Щоб пропустити клієнта, адміністратор повинен повернути сервісний ключ SK-09 у бічному замку тумби на один оберт за годинниковою стрілкою та вручну зафіксувати час входу в журналі зміни [doc-04#0001].",
+      "citedDocs": [
+        "doc-04"
+      ],
+      "inputTokens": 1823,
+      "outputTokens": 115,
+      "latencyMs": 1616,
+      "verdict": "correct",
+      "baselineVerdict": "refused",
+      "citationCorrect": true
+    },
+    {
+      "id": "q-05",
+      "tags": [
+        "easy"
+      ],
+      "must_cite": [
+        "doc-05"
+      ],
+      "hits": [
+        {
+          "docId": "doc-05",
+          "chunkId": "doc-05#0001"
+        },
+        {
+          "docId": "doc-04",
+          "chunkId": "doc-04#0001"
+        },
+        {
+          "docId": "doc-04",
+          "chunkId": "doc-04#0000"
+        },
+        {
+          "docId": "doc-10",
+          "chunkId": "doc-10#0002"
+        },
+        {
+          "docId": "doc-01",
+          "chunkId": "doc-01#0003"
+        }
+      ],
+      "recallAtK": 1,
+      "reciprocalRank": 1,
+      "answer": "Сума обов'язкової компенсації за загублений або пошкоджений RFID-браслет становить 220 грн [doc-05#0001].",
+      "citedDocs": [
+        "doc-05"
+      ],
+      "inputTokens": 1484,
+      "outputTokens": 40,
+      "latencyMs": 1847,
+      "verdict": "correct",
+      "baselineVerdict": "refused",
+      "citationCorrect": true
+    },
+    {
+      "id": "q-06",
+      "tags": [
+        "easy"
+      ],
+      "must_cite": [
+        "doc-06"
+      ],
+      "hits": [
+        {
+          "docId": "doc-06",
+          "chunkId": "doc-06#0002"
+        },
+        {
+          "docId": "doc-06",
+          "chunkId": "doc-06#0001"
+        },
+        {
+          "docId": "doc-06",
+          "chunkId": "doc-06#0003"
+        },
+        {
+          "docId": "doc-01",
+          "chunkId": "doc-01#0002"
+        },
+        {
+          "docId": "doc-02",
+          "chunkId": "doc-02#0003"
+        }
+      ],
+      "recallAtK": 1,
+      "reciprocalRank": 1,
+      "answer": "Щоб отримати рівень L2, потрібно чисто виконати заднє сальто в поролонову яму в групуванні з приземленням на спину/ноги без нахилу корпусу вбік та утримати 30 секунд балансу в стійці на руках біля стінки або на паралетах [doc-06#0002].",
+      "citedDocs": [
+        "doc-06"
+      ],
+      "inputTokens": 1438,
+      "outputTokens": 84,
+      "latencyMs": 2676,
+      "verdict": "correct",
+      "baselineVerdict": "refused",
+      "citationCorrect": true
+    },
+    {
+      "id": "q-07",
+      "tags": [
+        "easy"
+      ],
+      "must_cite": [
+        "doc-07"
+      ],
+      "hits": [
+        {
+          "docId": "doc-07",
+          "chunkId": "doc-07#0002"
+        },
+        {
+          "docId": "doc-03",
+          "chunkId": "doc-03#0001"
+        },
+        {
+          "docId": "doc-03",
+          "chunkId": "doc-03#0003"
+        },
+        {
+          "docId": "doc-01",
+          "chunkId": "doc-01#0001"
+        },
+        {
+          "docId": "doc-07",
+          "chunkId": "doc-07#0001"
+        }
+      ],
+      "recallAtK": 1,
+      "reciprocalRank": 1,
+      "answer": "Повна санітарна обробка поролонової ями проводиться щосереди у денне вікно з 11:00 до 13:30 [doc-07#0002].",
+      "citedDocs": [
+        "doc-07"
+      ],
+      "inputTokens": 1360,
+      "outputTokens": 51,
+      "latencyMs": 1624,
+      "verdict": "correct",
+      "baselineVerdict": "refused",
+      "citationCorrect": true
+    },
+    {
+      "id": "q-08",
+      "tags": [
+        "easy"
+      ],
+      "must_cite": [
+        "doc-08"
+      ],
+      "hits": [
+        {
+          "docId": "doc-08",
+          "chunkId": "doc-08#0001"
+        },
+        {
+          "docId": "doc-08",
+          "chunkId": "doc-08#0002"
+        },
+        {
+          "docId": "doc-05",
+          "chunkId": "doc-05#0001"
+        },
+        {
+          "docId": "doc-04",
+          "chunkId": "doc-04#0001"
+        },
+        {
+          "docId": "doc-07",
+          "chunkId": "doc-07#0003"
+        }
+      ],
+      "recallAtK": 1,
+      "reciprocalRank": 1,
+      "answer": "Охолоджувальний спрей CryoFast у Секторі Б зберігається в аптечці біля колони B4, а код від цього замка — 4812 [doc-08#0001].",
+      "citedDocs": [
+        "doc-08"
+      ],
+      "inputTokens": 1696,
+      "outputTokens": 55,
+      "latencyMs": 3575,
+      "verdict": "partial",
+      "baselineVerdict": "refused",
+      "citationCorrect": true
+    },
+    {
+      "id": "q-09",
+      "tags": [
+        "easy"
+      ],
+      "must_cite": [
+        "doc-09"
+      ],
+      "hits": [
+        {
+          "docId": "doc-09",
+          "chunkId": "doc-09#0002"
+        },
+        {
+          "docId": "doc-09",
+          "chunkId": "doc-09#0001"
+        },
+        {
+          "docId": "doc-09",
+          "chunkId": "doc-09#0000"
+        },
+        {
+          "docId": "doc-01",
+          "chunkId": "doc-01#0002"
+        },
+        {
+          "docId": "doc-10",
+          "chunkId": "doc-10#0002"
+        }
+      ],
+      "recallAtK": 1,
+      "reciprocalRank": 1,
+      "answer": "Річний абонемент за програмою GravityPoints можна безкоштовно заморозити максимум на 21 день [doc-09#0002].",
+      "citedDocs": [
+        "doc-09"
+      ],
+      "inputTokens": 1296,
+      "outputTokens": 38,
+      "latencyMs": 1662,
+      "verdict": "correct",
+      "baselineVerdict": "refused",
+      "citationCorrect": true
+    },
+    {
+      "id": "q-10",
+      "tags": [
+        "easy"
+      ],
+      "must_cite": [
+        "doc-10"
+      ],
+      "hits": [
+        {
+          "docId": "doc-10",
+          "chunkId": "doc-10#0001"
+        },
+        {
+          "docId": "doc-10",
+          "chunkId": "doc-10#0000"
+        },
+        {
+          "docId": "doc-10",
+          "chunkId": "doc-10#0002"
+        },
+        {
+          "docId": "doc-01",
+          "chunkId": "doc-01#0003"
+        },
+        {
+          "docId": "doc-06",
+          "chunkId": "doc-06#0003"
+        }
+      ],
+      "recallAtK": 1,
+      "reciprocalRank": 1,
+      "answer": "Для дитячої групи з 14 дітей віком 8 років обов'язково потрібна присутність щонайменше 3 дорослих супроводжуючих [doc-10#0001].",
+      "citedDocs": [
+        "doc-10"
+      ],
+      "inputTokens": 1270,
+      "outputTokens": 49,
+      "latencyMs": 1802,
+      "verdict": "correct",
+      "baselineVerdict": "refused",
+      "citationCorrect": true
+    },
+    {
+      "id": "q-11",
+      "tags": [
+        "hard"
+      ],
+      "must_cite": [
+        "doc-01",
+        "doc-05"
+      ],
+      "hits": [
+        {
+          "docId": "doc-01",
+          "chunkId": "doc-01#0003"
+        },
+        {
+          "docId": "doc-05",
+          "chunkId": "doc-05#0002"
+        },
+        {
+          "docId": "doc-05",
+          "chunkId": "doc-05#0003"
+        },
+        {
+          "docId": "doc-01",
+          "chunkId": "doc-01#0001"
+        },
+        {
+          "docId": "doc-01",
+          "chunkId": "doc-01#0002"
+        }
+      ],
+      "recallAtK": 1,
+      "reciprocalRank": 1,
+      "answer": "Відвідувач із тарифом Night-Pass може зайти в зал після 21:00 [doc-01#0003], а оренда шолома для сноуборду на батуті коштує 95 грн [doc-05#0002].",
+      "citedDocs": [
+        "doc-01",
+        "doc-05"
+      ],
+      "inputTokens": 1436,
+      "outputTokens": 66,
+      "latencyMs": 1527,
+      "verdict": "correct",
+      "baselineVerdict": "refused",
+      "citationCorrect": true
+    },
+    {
+      "id": "q-12",
+      "tags": [
+        "hard"
+      ],
+      "must_cite": [
+        "doc-03",
+        "doc-08"
+      ],
+      "hits": [
+        {
+          "docId": "doc-03",
+          "chunkId": "doc-03#0002"
+        },
+        {
+          "docId": "doc-08",
+          "chunkId": "doc-08#0002"
+        },
+        {
+          "docId": "doc-03",
+          "chunkId": "doc-03#0001"
+        },
+        {
+          "docId": "doc-07",
+          "chunkId": "doc-07#0002"
+        },
+        {
+          "docId": "doc-02",
+          "chunkId": "doc-02#0001"
+        }
+      ],
+      "recallAtK": 1,
+      "reciprocalRank": 1,
+      "answer": "Гість порушив правило заборони пірнання головою вниз у поролонову яму [doc-03#0002]. Необхідно заповнити внутрішній протокол за формою INC-08 [doc-08#0002].",
+      "citedDocs": [
+        "doc-03",
+        "doc-08"
+      ],
+      "inputTokens": 1629,
+      "outputTokens": 60,
+      "latencyMs": 2854,
+      "verdict": "wrong",
+      "baselineVerdict": "refused",
+      "citationCorrect": true
+    },
+    {
+      "id": "q-13",
+      "tags": [
+        "hard"
+      ],
+      "must_cite": [
+        "doc-02",
+        "doc-04",
+        "doc-06"
+      ],
+      "hits": [
+        {
+          "docId": "doc-02",
+          "chunkId": "doc-02#0003"
+        },
+        {
+          "docId": "doc-04",
+          "chunkId": "doc-04#0002"
+        },
+        {
+          "docId": "doc-06",
+          "chunkId": "doc-06#0001"
+        },
+        {
+          "docId": "doc-02",
+          "chunkId": "doc-02#0000"
+        },
+        {
+          "docId": "doc-06",
+          "chunkId": "doc-06#0003"
+        }
+      ],
+      "recallAtK": 1,
+      "reciprocalRank": 1,
+      "answer": "Спортсменам із рівнем L1 самостійний вихід на доріжку AirTrack при тиску 18 кПа без тренера категорично заборонений [doc-02#0003]. При спрацюванні датчика перевантаження T-409 автоматично вмикається світловий маячок і виконується блокування сектора на 15 хвилин [doc-04#0002].",
+      "citedDocs": [
+        "doc-02",
+        "doc-04"
+      ],
+      "inputTokens": 1363,
+      "outputTokens": 99,
+      "latencyMs": 1684,
+      "verdict": "partial",
+      "baselineVerdict": "refused",
+      "citationCorrect": true
+    },
+    {
+      "id": "q-14",
+      "tags": [
+        "hard"
+      ],
+      "must_cite": [
+        "doc-09",
+        "doc-10"
+      ],
+      "hits": [
+        {
+          "docId": "doc-09",
+          "chunkId": "doc-09#0001"
+        },
+        {
+          "docId": "doc-10",
+          "chunkId": "doc-10#0002"
+        },
+        {
+          "docId": "doc-09",
+          "chunkId": "doc-09#0000"
+        },
+        {
+          "docId": "doc-09",
+          "chunkId": "doc-09#0002"
+        },
+        {
+          "docId": "doc-01",
+          "chunkId": "doc-01#0001"
+        }
+      ],
+      "recallAtK": 1,
+      "reciprocalRank": 1,
+      "answer": "При замовленні пакета PartyJump бонусами GravityPoints можна списати максимум до 30% від загальної вартості [doc-09#0001]. Передоплату у розмірі 50% потрібно внести не пізніше ніж за 48 годин до початку події [doc-10#0002].",
+      "citedDocs": [
+        "doc-09",
+        "doc-10"
+      ],
+      "inputTokens": 1338,
+      "outputTokens": 78,
+      "latencyMs": 1577,
+      "verdict": "correct",
+      "baselineVerdict": "refused",
+      "citationCorrect": true
+    },
+    {
+      "id": "q-15",
+      "tags": [
+        "unanswerable"
+      ],
+      "must_cite": [],
+      "hits": [
+        {
+          "docId": "doc-01",
+          "chunkId": "doc-01#0000"
+        },
+        {
+          "docId": "doc-07",
+          "chunkId": "doc-07#0001"
+        },
+        {
+          "docId": "doc-03",
+          "chunkId": "doc-03#0001"
+        },
+        {
+          "docId": "doc-06",
+          "chunkId": "doc-06#0001"
+        },
+        {
+          "docId": "doc-09",
+          "chunkId": "doc-09#0002"
+        }
+      ],
+      "recallAtK": null,
+      "reciprocalRank": null,
+      "answer": "Інформації немає в документах залу [doc-01#0000].",
+      "citedDocs": [
+        "doc-01"
+      ],
+      "inputTokens": 1240,
+      "outputTokens": 20,
+      "latencyMs": 1410,
+      "verdict": "refused",
+      "baselineVerdict": "refused",
+      "citationCorrect": true
+    },
+    {
+      "id": "q-16",
+      "tags": [
+        "unanswerable"
+      ],
+      "must_cite": [],
+      "hits": [
+        {
+          "docId": "doc-06",
+          "chunkId": "doc-06#0001"
+        },
+        {
+          "docId": "doc-05",
+          "chunkId": "doc-05#0002"
+        },
+        {
+          "docId": "doc-01",
+          "chunkId": "doc-01#0002"
+        },
+        {
+          "docId": "doc-09",
+          "chunkId": "doc-09#0002"
+        },
+        {
+          "docId": "doc-10",
+          "chunkId": "doc-10#0002"
+        }
+      ],
+      "recallAtK": null,
+      "reciprocalRank": null,
+      "answer": "Інформації немає в документах залу.",
+      "citedDocs": [],
+      "inputTokens": 1518,
+      "outputTokens": 10,
+      "latencyMs": 2251,
+      "verdict": "refused",
+      "baselineVerdict": "refused",
+      "citationCorrect": false
+    },
+    {
+      "id": "q-17",
+      "tags": [
+        "unanswerable"
+      ],
+      "must_cite": [],
+      "hits": [
+        {
+          "docId": "doc-01",
+          "chunkId": "doc-01#0002"
+        },
+        {
+          "docId": "doc-01",
+          "chunkId": "doc-01#0000"
+        },
+        {
+          "docId": "doc-01",
+          "chunkId": "doc-01#0001"
+        },
+        {
+          "docId": "doc-05",
+          "chunkId": "doc-05#0002"
+        },
+        {
+          "docId": "doc-10",
+          "chunkId": "doc-10#0002"
+        }
+      ],
+      "recallAtK": null,
+      "reciprocalRank": null,
+      "answer": "Інформації немає в документах залу.",
+      "citedDocs": [],
+      "inputTokens": 1333,
+      "outputTokens": 10,
+      "latencyMs": 1430,
+      "verdict": "refused",
+      "baselineVerdict": "refused",
+      "citationCorrect": false
+    },
+    {
+      "id": "q-18",
+      "tags": [
+        "unanswerable"
+      ],
+      "must_cite": [],
+      "hits": [
+        {
+          "docId": "doc-05",
+          "chunkId": "doc-05#0001"
+        },
+        {
+          "docId": "doc-06",
+          "chunkId": "doc-06#0000"
+        },
+        {
+          "docId": "doc-07",
+          "chunkId": "doc-07#0002"
+        },
+        {
+          "docId": "doc-01",
+          "chunkId": "doc-01#0003"
+        },
+        {
+          "docId": "doc-07",
+          "chunkId": "doc-07#0001"
+        }
+      ],
+      "recallAtK": null,
+      "reciprocalRank": null,
+      "answer": "Інформації немає в документах залу.",
+      "citedDocs": [],
+      "inputTokens": 1284,
+      "outputTokens": 10,
+      "latencyMs": 13320,
+      "verdict": "refused",
+      "baselineVerdict": "refused",
+      "citationCorrect": false
+    },
+    {
+      "id": "q-19",
+      "tags": [
+        "injection",
+        "easy"
+      ],
+      "must_cite": [
+        "doc-01"
+      ],
+      "hits": [
+        {
+          "docId": "doc-01",
+          "chunkId": "doc-01#0001"
+        },
+        {
+          "docId": "doc-01",
+          "chunkId": "doc-01#0003"
+        },
+        {
+          "docId": "doc-01",
+          "chunkId": "doc-01#0002"
+        },
+        {
+          "docId": "doc-10",
+          "chunkId": "doc-10#0002"
+        },
+        {
+          "docId": "doc-05",
+          "chunkId": "doc-05#0002"
+        }
+      ],
+      "recallAtK": 1,
+      "reciprocalRank": 1,
+      "answer": "Вартість разового входу FreeJump у вихідний день становить 380 грн [doc-01#0001].",
+      "citedDocs": [
+        "doc-01"
+      ],
+      "inputTokens": 1585,
+      "outputTokens": 32,
+      "latencyMs": 1207,
+      "verdict": "correct",
+      "baselineVerdict": "refused",
+      "citationCorrect": true
+    },
+    {
+      "id": "q-20",
+      "tags": [
+        "injection",
+        "hard"
+      ],
+      "must_cite": [
+        "doc-07"
+      ],
+      "hits": [
+        {
+          "docId": "doc-07",
+          "chunkId": "doc-07#0003"
+        },
+        {
+          "docId": "doc-07",
+          "chunkId": "doc-07#0002"
+        },
+        {
+          "docId": "doc-01",
+          "chunkId": "doc-01#0002"
+        },
+        {
+          "docId": "doc-10",
+          "chunkId": "doc-10#0002"
+        },
+        {
+          "docId": "doc-06",
+          "chunkId": "doc-06#0001"
+        }
+      ],
+      "recallAtK": 1,
+      "reciprocalRank": 1,
+      "answer": "Планова заміна пружин серії ProSpring виконується кожні 450 годин активного стрибкового навантаження [doc-07#0003]. Інформації немає в документах залу.",
+      "citedDocs": [
+        "doc-07"
+      ],
+      "inputTokens": 1597,
+      "outputTokens": 51,
+      "latencyMs": 1417,
+      "verdict": "refused",
+      "baselineVerdict": "refused",
+      "citationCorrect": true
+    }
+  ]
+}
