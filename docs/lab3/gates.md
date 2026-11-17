@@ -19,12 +19,12 @@
 Набір правил на main: «Require status checks to pass before merging»
 Перелічені перевірки: types, lint, tests, build
 «Require branches to be up to date before merging»: увімкнено (рекомендовано для уникнення злиття застарілих гілок).
-Скріншот: *(Додайте скріншот пізніше)*
+Скріншот: docs/lab3/ruleset-screenshot.png
 
 ## 3. Навмисне падіння
-Гілка: harness/red-[ДАТА] · що саме зламано: [ОПИС]
-Прогін: [URL]
-Очікувано червона брама: [types|tests]
+Гілка: harness/red-2026-11-17 · що саме зламано: Додано некоректну типізацію (число присвоєно рядку) у src/mcp/tools.ts
+Прогін: https://github.com/ArtuR188/Agent-Engineering/actions/runs/44164431629
+Очікувано червона брама: types
 Що показали наступні брами: skipped (а не failure)
 record виконалась: так · gate-record.json: містить fail на потрібній брамі.
 
