@@ -63,3 +63,4 @@ export function fetchChunk(deps: Deps, raw: unknown): string {
   const c = toCitation(chunk, clip(chunk.text));
   return `${renderCitation(c)}\n${clip(chunk.text)}`;
 }
+const badVar: string = 123;
