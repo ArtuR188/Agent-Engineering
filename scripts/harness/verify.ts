@@ -1,7 +1,15 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { criterionVerdict, isBlocked, verifyReport, type CriterionVerdict } from '../../src/verify/schema';
-import { sanitizeDiff } from '../verify';
+function sanitizeDiff(diff: string): string {
+  const withoutEnv = diff.replace(
+    /^diff --git a\/[^\n]*\.env[^\n]*[\s\S]*?(?=^diff --git |\Z)/gm,
+    ''
+  );
+  return withoutEnv
+    .replace(/(AIza[0-9A-Za-z_-]{20,}|sk-[0-9A-Za-z_-]{20,}|ghp_[0-9A-Za-z]{20,})/g, '[REDACTED]')
+    .replace(/^([+-]?\s*[A-Z0-9_]*(?:KEY|TOKEN|SECRET)[A-Z0-9_]*\s*=\s*)(.+)$/gm, '$1[REDACTED]');
+}
 
 const MODEL = process.env.VERIFIER_MODEL ?? 'gemini-2.5-flash';
 
