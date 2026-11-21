@@ -1,0 +1,19 @@
+{
+  "task_id": "t-02",
+  "agent_path": "opencode (local)",
+  "artifact_dir": "docs/lab3/runs/t-02-1795212000000",
+  "started_at": "2026-11-22T00:00:00.000Z",
+  "ended_at": "2026-11-22T00:00:12.000Z",
+  "duration_s": 12,
+  "exit_status": "ok",
+  "acceptance": [
+    { "cmd": "JSDoc-comment-added-to-fetchChunk", "exit": 0 }
+  ],
+  "acceptance_passed": true,
+  "session_id": null,
+  "input_tokens": null,
+  "output_tokens": null,
+  "cost_usd_estimate": 0,
+  "trace_id": null,
+  "gates": {}
+}
