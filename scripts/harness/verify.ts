@@ -11,7 +11,7 @@ function sanitizeDiff(diff: string): string {
     .replace(/^([+-]?\s*[A-Z0-9_]*(?:KEY|TOKEN|SECRET)[A-Z0-9_]*\s*=\s*)(.+)$/gm, '$1[REDACTED]');
 }
 
-const MODEL = process.env.VERIFIER_MODEL ?? 'gemini-2.5-flash';
+const MODEL = process.env.VERIFIER_MODEL ?? 'gemini-3.8-flash';
 
 interface TaskDef {
   id: string;
