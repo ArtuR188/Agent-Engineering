@@ -53,5 +53,5 @@ export type VerifyReport = z.infer<typeof verifyReport>;
 
 /** Брама: червоно, щойно є хоч один fail. unknown браму не валить, але потрапляє у звіт. */
 export function isBlocked(report: VerifyReport): boolean {
-  return report.results.some((r) => r.verdict === 'fail');
+  return report.results.some((r) => r.verdict !== 'pass');
 }

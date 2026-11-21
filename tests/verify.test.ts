@@ -26,14 +26,14 @@ describe('src/verify/schema', () => {
     expect(isBlocked(report)).toBe(true);
   });
 
-  it('не блокує при pass і unknown без fail', () => {
+  it('блокує при unknown без fail (правило Лаб. 3)', () => {
     const report = verifyReport.parse({
       results: [
         { id: 'A1', verdict: 'pass', reason: 'Ок', evidence: 'package.json:1' },
         { id: 'A2', verdict: 'unknown', reason: 'Немає у diff', evidence: '' },
       ],
     });
-    expect(isBlocked(report)).toBe(false);
+    expect(isBlocked(report)).toBe(true);
   });
 
   it('вимагає порожній evidence для unknown і непорожній для pass/fail', () => {
