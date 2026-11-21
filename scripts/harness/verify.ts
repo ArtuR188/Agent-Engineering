@@ -73,7 +73,8 @@ function resolveRunDir(): string | null {
   const root = 'docs/lab3/runs';
   if (!existsSync(root)) return null;
   const dirs = readdirSync(root).map((d) => join(root, d)).filter((p) => statSync(p).isDirectory());
-  return dirs.sort((a, b) => statSync(b).mtimeMs - statSync(a).mtimeMs)[0] ?? null;
+  const ts = (x: string) => Number(x.split('-').pop()) || 0;
+  return dirs.sort((a, b) => ts(b) - ts(a))[0] ?? null;
 }
 
 async function main() {
