@@ -19,7 +19,7 @@
 Набір правил на main: «Require status checks to pass before merging»
 Перелічені перевірки: types, lint, tests, build
 «Require branches to be up to date before merging»: увімкнено (рекомендовано для уникнення злиття застарілих гілок).
-Скріншот: docs/lab3/ruleset-screenshot.png
+Скріншот: docs/lab3/ruleset-screenshot.jpg
 
 ## 3. Навмисне падіння
 Гілка: harness/red-2026-11-17 · що саме зламано: Додано некоректну типізацію (число присвоєно рядку) у src/mcp/tools.ts

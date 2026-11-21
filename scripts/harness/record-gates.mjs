@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const arg = (n) => {
@@ -17,7 +17,7 @@ const gates = {
 
 const root = 'docs/lab3/runs';
 // Якщо локально ще немає артефактів, просто робимо пусту заглушку (для GitHub)
-if (!fs.existsSync(root)) fs.mkdirSync(root, { recursive: true });
+if (!existsSync(root)) mkdirSync(root, { recursive: true });
 
 const dirs = readdirSync(root).map((d) => join(root, d)).filter((p) => statSync(p).isDirectory());
 const latest = dirs.sort((a, b) => statSync(b).mtimeMs - statSync(a).mtimeMs)[0];
