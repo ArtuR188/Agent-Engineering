@@ -1,0 +1,51 @@
+name: factory
+
+on:
+  workflow_dispatch:
+    inputs:
+      task_id:
+        description: 'Task ID'
+        required: false
+        default: 't-04'
+      max_steps:
+        description: 'Max AI SDK steps (isStepCount)'
+        required: false
+        default: '6'
+
+concurrency:
+  group: harness-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  factory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          name: breaker
+          path: .harness
+      - name: Прогін фабрики (AI SDK loop)
+        timeout-minutes: 8
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: npm run harness -- --task "${{ inputs.task_id || 't-04' }}" --max-steps "${{ inputs.max_steps || '6' }}"
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: breaker
+          path: .harness/breaker.json
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: stop-log
+          path: docs/lab3/stop-log.jsonl
+          if-no-files-found: ignore
