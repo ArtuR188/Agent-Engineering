@@ -51,3 +51,7 @@ Fowler, «CircuitBreaker» (06.03.2014): `closed` / `open` / `half-open`, пат
 * Витрати субагентів у `maxBudgetUsd` входять (нові не стартують із `Budget limit reached`, фонові зупиняються).
 * `taskBudget: { total }` перебуває в статусі альфа і недоступний на безкоштовному Gemini API.
 * **Чесно про мій безкоштовний шлях (`Gemini API Free Tier` + `AI SDK`):** вендорських лімітів `maxTurns`, `maxBudgetUsd` і `taskBudget` у мене немає (у Gemini CLI відомий лише `model.maxSessionTurns` у `run-gemini-cli@v0`). Тому реальні зупинювачі в цьому репозиторії — власний `stopWhen` (`isStepCount`), `AbortController`-таймаут на задачу, `timeout-minutes` + `concurrency` у GitHub Actions та circuit breaker із реакцією на `HTTP 429`.
+
+### 3. Перевірка в GitHub Actions (`factory.yml`)
+* **Червоний прогін (`factory #1`, блокування відкритим брейкером):** https://github.com/ArtuR188/Agent-Engineering/actions/runs/45021439816 (`exit code 2`, перепочинок 15 хв ще тривав, 2 артефакти вивантажено).
+* **Зелений прогін (`factory #2`, вихід через `half-open` → `closed`):** https://github.com/ArtuR188/Agent-Engineering/actions/runs/45021775828 (після завершення cool-down пробна задача `t-04` пройшла за 30 с).
