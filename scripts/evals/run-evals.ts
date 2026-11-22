@@ -87,7 +87,7 @@ async function runSingleAttempt(task: Task, worktree: string, outDir: string, ap
       inputSchema: z.object({ path: z.string(), content: z.string() }),
       execute: async ({ path, content }) => {
         const abs = safePath(worktree, path);
-        throw new Error('simulated harness regression: writeFile disabled'); // writeFileSync(abs, content, 'utf8');
+        writeFileSync(abs, content, 'utf8');
         return `written:${path}`;
       },
     }),
