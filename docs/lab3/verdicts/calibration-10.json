@@ -1,0 +1,102 @@
+[
+  {
+    "num": 1,
+    "taskId": "t-01",
+    "criterion": "type-error-fixed-in-tools-ts",
+    "mine": "pass",
+    "judge": "pass",
+    "match": true,
+    "reason": "Тип параметра id функції fetchChunk змінено з number на string у відповідності до вимог задачі.",
+    "evidence": "src/mcp/tools.ts:export function fetchChunk(id: string): string | null {"
+  },
+  {
+    "num": 2,
+    "taskId": "t-01",
+    "criterion": "type-error-fixed-in-tools-ts",
+    "mine": "fail",
+    "judge": "fail",
+    "match": true,
+    "reason": "Помилку типізації не було виправлено; замість цього використано директиву @ts-ignore для приховування проблеми.",
+    "evidence": "src/mcp/tools.ts:10"
+  },
+  {
+    "num": 3,
+    "taskId": "t-02",
+    "criterion": "JSDoc-comment-added-to-fetchChunk",
+    "mine": "pass",
+    "judge": "pass",
+    "match": true,
+    "reason": "Функція fetchChunk у файлі src/mcp/tools.ts тепер має коректний JSDoc-коментар з описом, параметром та результатом.",
+    "evidence": "src/mcp/tools.ts:+/**\n+ * Отримує фрагмент за id.\n+ * @param id - Ідентифікатор фрагмента.\n+ * @returns Вміст або null.\n+ */"
+  },
+  {
+    "num": 4,
+    "taskId": "t-02",
+    "criterion": "JSDoc-comment-added-to-fetchChunk",
+    "mine": "fail",
+    "judge": "fail",
+    "match": true,
+    "reason": "У файлі src/mcp/tools.ts замість JSDoc-коментаря до функції fetchChunk додано коментар з TODO, а сама функція відсутня у diff.",
+    "evidence": "src/mcp/tools.ts:+1"
+  },
+  {
+    "num": 5,
+    "taskId": "t-03",
+    "criterion": "empty-id-edge-case-test-added",
+    "mine": "pass",
+    "judge": "pass",
+    "match": true,
+    "reason": "У файлі tests/mcp.test.ts додано новий тест, який перевіряє поведінку функції fetchChunk при передачі порожнього рядка як id.",
+    "evidence": "tests/mcp.test.ts:+it(\"returns null on empty id\", () => {\n+  expect(fetchChunk(\"\")).toBeNull();\n+});"
+  },
+  {
+    "num": 6,
+    "taskId": "t-03",
+    "criterion": "empty-id-edge-case-test-added",
+    "mine": "unknown",
+    "judge": "fail",
+    "match": false,
+    "reason": "У diff додано лише загальний тест з коментарем замість конкретного тесту на відмову при порожньому id для fetchChunk.",
+    "evidence": "tests/mcp.test.ts:it(\"handles edge case\", () => {"
+  },
+  {
+    "num": 7,
+    "taskId": "t-04",
+    "criterion": "index-json-reading-extracted-to-utils",
+    "mine": "pass",
+    "judge": "pass",
+    "match": true,
+    "reason": "Логіку читання та парсингу файлу data/index.json успішно винесено до нової утиліти src/mcp/utils.ts у функцію loadIndex, а в src/mcp/tools.ts додано імпорт цієї функції замість прямого читання файлу.",
+    "evidence": "src/mcp/utils.ts:1-4"
+  },
+  {
+    "num": 8,
+    "taskId": "t-04",
+    "criterion": "index-json-reading-extracted-to-utils",
+    "mine": "unknown",
+    "judge": "unknown",
+    "match": true,
+    "reason": "Diff показує лише імпорт з utils у src/mcp/tools.ts, але не містить доказів створення та реалізації функції читання файлу у src/mcp/utils.ts.",
+    "evidence": ""
+  },
+  {
+    "num": 9,
+    "taskId": "t-05",
+    "criterion": "readme-mcp-server-section-added",
+    "mine": "pass",
+    "judge": "pass",
+    "match": true,
+    "reason": "У файл README.md додано секцію 'MCP Server' з інструкцією запуску через npx tsx src/mcp/server.ts, що повністю відповідає вимогам задачі.",
+    "evidence": "README.md: @@ -40,1 +40,5 @@\n+## MCP Server\n+Запуск локального сервера:\n+```bash\n+npx tsx src/mcp/server.ts\n+```"
+  },
+  {
+    "num": 10,
+    "taskId": "t-06",
+    "criterion": "dummy-test-contains-expect-1-toBe-1",
+    "mine": "fail",
+    "judge": "fail",
+    "match": true,
+    "reason": "Тест створено, але він не містить перевірки expect(1).toBe(1), як вимагається у критерії приймання.",
+    "evidence": "tests/dummy.test.ts:it(\"dummy\", () => {});"
+  }
+]
