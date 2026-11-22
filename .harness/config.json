@@ -1,0 +1,17 @@
+{
+  "permissionMode": "dontAsk",
+  "bypassPermissions": false,
+  "allowedTools": [
+    "readFile",
+    "listFiles",
+    "submitArtifact"
+  ],
+  "isolation": "git-worktree",
+  "model": "gemini-3.5-flash-lite",
+  "limits": {
+    "taskTimeoutMs": 60000,
+    "defaultMaxSteps": 6,
+    "ciJobTimeoutMinutes": 15,
+    "ciStepTimeoutMinutes": 8
+  }
+}

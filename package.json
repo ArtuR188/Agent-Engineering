@@ -21,7 +21,8 @@
     "verify": "tsx scripts/harness/verify.ts",
     "index": "tsx scripts/build-index.ts",
     "mcp": "tsx src/mcp/server.ts",
-    "kappa": "tsx scripts/kappa.ts"
+    "kappa": "tsx scripts/kappa.ts",
+    "harness": "tsx scripts/harness/run-loop.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.121",

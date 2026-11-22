@@ -1,0 +1,13 @@
+{
+  "state": "open",
+  "fails": 2,
+  "noProgress": 2,
+  "recentResults": [
+    false,
+    false
+  ],
+  "openedAt": "2026-11-22T12:03:34.187Z",
+  "cooldownMin": 15,
+  "trip": "provider_quota_429",
+  "probeInFlight": false
+}
