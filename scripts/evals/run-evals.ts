@@ -122,7 +122,7 @@ async function runSingleAttempt(task: Task, worktree: string, outDir: string, ap
 
   let patch = '';
   try {
-    execFileSync('git', ['add', '-A'], { cwd: worktree });
+    execFileSync('git', ['add', '-A', '--', '.', ':!node_modules'], { cwd: worktree });
     patch = execFileSync('git', ['diff', '--cached'], { cwd: worktree, encoding: 'utf8' });
   } catch {}
 
