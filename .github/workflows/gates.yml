@@ -134,7 +134,7 @@ jobs:
       - run: npm run verify
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          VERIFIER_MODEL: gemini-2.5-flash
+          VERIFIER_MODEL: gemini-3.5-flash-lite
       - if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:

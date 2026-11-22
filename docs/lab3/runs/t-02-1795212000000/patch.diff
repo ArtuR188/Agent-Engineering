@@ -1,0 +1,10 @@
+diff --git a/src/mcp/tools.ts b/src/mcp/tools.ts
+--- a/src/mcp/tools.ts
++++ b/src/mcp/tools.ts
+@@ -12,1 +12,6 @@
++/**
++ * Отримує фрагмент документації за його ідентифікатором.
++ * @param id - Ідентифікатор фрагмента.
++ * @returns Вміст фрагмента або null, якщо не знайдено.
++ */
+ export function fetchChunk(id: string): string | null {
