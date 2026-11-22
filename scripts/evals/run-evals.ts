@@ -98,7 +98,7 @@ async function runSingleAttempt(task: Task, worktree: string, outDir: string, ap
     }),
   };
 
-  const maxSteps = Math.min(Math.max(2, task.budget.max_turns), 5);
+  const maxSteps = Math.min(Math.max(5, task.budget.max_turns), 6);
 
   try {
     const res = await generateText({
@@ -237,6 +237,7 @@ async function main() {
         appendFileSync(LOG, `${JSON.stringify(row)}\n`, 'utf8');
         sessionLines.push({ task_id: task.id, bucket: row.bucket, pass: row.pass });
         console.log(`${task.id} #${attempt}/${K} [${row.bucket}]: ${passed ? 'PASS' : 'FAIL'} (${r.durationS}s)`);
+        if (!passed) { console.log('  reason:', r.exitStatus, results.filter((g) => !g.pass).map((g) => `${g.id}=${g.detail}`).join(' | ')); }
       } finally {
         unlinkNodeModules(nmDst);
         try { git(['worktree', 'remove', tree, '--force']); } catch {}
