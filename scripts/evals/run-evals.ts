@@ -11,7 +11,7 @@ import {
   unlinkSync,
   writeFileSync,
 } from 'node:fs';
-import { join, relative, resolve } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { z } from 'zod';
 import { estimateCost } from '../../src/models';
 import { checkAcceptance, type Task } from '../harness/run-task';
@@ -80,13 +80,18 @@ async function runSingleAttempt(task: Task, worktree: string, outDir: string, ap
     readFile: tool({
       description: 'Прочитати файл із поточного робочого дерева.',
       inputSchema: z.object({ path: z.string() }),
-      execute: async ({ path }) => readFileSync(safePath(worktree, path), 'utf8').slice(0, 4000),
+      execute: async ({ path }) => {
+        const abs = safePath(worktree, path);
+        if (!existsSync(abs)) return `FILE_NOT_FOUND:${path}`;
+        return readFileSync(abs, 'utf8').slice(0, 4000);
+      },
     }),
     writeFile: tool({
       description: 'Записати файл у поточному робочому дереві.',
       inputSchema: z.object({ path: z.string(), content: z.string() }),
       execute: async ({ path, content }) => {
         const abs = safePath(worktree, path);
+        mkdirSync(dirname(abs), { recursive: true });
         writeFileSync(abs, content, 'utf8');
         return `written:${path}`;
       },
@@ -99,25 +104,40 @@ async function runSingleAttempt(task: Task, worktree: string, outDir: string, ap
   };
 
   const maxSteps = Math.min(Math.max(5, task.budget.max_turns), 6);
+  const delays = [15_000, 30_000, 45_000];
 
-  try {
-    const res = await generateText({
-      model: google(MODEL_ID),
-      prompt: [
-        `Виконай задачу ${task.id} у робочому дереві.`,
-        `Інструкція: ${task.input}`,
-        `Дозволені файли: ${(task.files ?? []).join(', ') || 'НЕ змінюй і НЕ створюй жодних файлів'}.`,
-        'Якщо задача просить лише перевірити або не стосується коду — нічого не редагуй і одразу виклич submitArtifact.',
-      ].join('\n'),
-      tools,
-      stopWhen: [isStepCount(maxSteps), hasToolCall('submitArtifact')],
-    });
-    outputText = res.text || 'completed';
-    inputTokens = res.totalUsage?.inputTokens ?? null;
-    outputTokens = res.totalUsage?.outputTokens ?? null;
-  } catch (err) {
-    exitStatus = 'agent_failed';
-    outputText = String(err);
+  for (let retry = 0; retry <= delays.length; retry += 1) {
+    try {
+      const res = await generateText({
+        model: google(MODEL_ID),
+        prompt: [
+          `Виконай задачу ${task.id} у робочому дереві.`,
+          `Інструкція: ${task.input}`,
+          `Дозволені файли: ${(task.files ?? []).join(', ') || 'НЕ змінюй і НЕ створюй жодних файлів'}.`,
+          "Якщо задача просить створити або змінити файл — обов'язково виклич writeFile (для тестів імпортуй { describe, it, expect } from 'vitest') перед submitArtifact.",
+          'Якщо задача просить лише перевірити або не стосується коду — нічого не редагуй і одразу виклич submitArtifact.',
+        ].join('\n'),
+        tools,
+        stopWhen: [isStepCount(maxSteps), hasToolCall('submitArtifact')],
+      });
+      exitStatus = 'ok';
+      outputText = res.text || 'completed';
+      inputTokens = res.totalUsage?.inputTokens ?? null;
+      outputTokens = res.totalUsage?.outputTokens ?? null;
+      break;
+    } catch (err) {
+      const msg = String(err);
+      const isTransient = /429|503|RESOURCE_EXHAUSTED|UNAVAILABLE|rate limit|high demand/i.test(msg);
+      const waitMs = delays[retry];
+      if (isTransient && waitMs !== undefined) {
+        console.log(`  transient API error on ${task.id}, retry ${retry + 1}/${delays.length} in ${waitMs / 1000}s...`);
+        await new Promise((r) => setTimeout(r, waitMs));
+        continue;
+      }
+      exitStatus = 'agent_failed';
+      outputText = msg;
+      break;
+    }
   }
 
   let patch = '';
@@ -237,7 +257,14 @@ async function main() {
         appendFileSync(LOG, `${JSON.stringify(row)}\n`, 'utf8');
         sessionLines.push({ task_id: task.id, bucket: row.bucket, pass: row.pass });
         console.log(`${task.id} #${attempt}/${K} [${row.bucket}]: ${passed ? 'PASS' : 'FAIL'} (${r.durationS}s)`);
-        if (!passed) { console.log('  reason:', r.exitStatus, results.filter((g) => !g.pass).map((g) => `${g.id}=${g.detail}`).join(' | ')); }
+        if (!passed) {
+          const failed = results.filter((g) => !g.pass).map((g) => `${g.id}=${g.detail}`).join(' | ');
+          console.log('  reason:', r.exitStatus, failed);
+          if (r.exitStatus === 'agent_failed') {
+            console.log('  error:', r.outputText.slice(0, 300));
+          }
+        }
+        await new Promise((res) => setTimeout(res, 2000));
       } finally {
         unlinkNodeModules(nmDst);
         try { git(['worktree', 'remove', tree, '--force']); } catch {}
