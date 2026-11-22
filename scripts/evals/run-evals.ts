@@ -1,6 +1,6 @@
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { generateText, hasToolCall, isStepCount, tool } from 'ai';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, execSync } from 'node:child_process';
 import {
   appendFileSync,
   existsSync,
@@ -83,7 +83,7 @@ async function runSingleAttempt(task: Task, worktree: string, outDir: string, ap
       execute: async ({ path }) => {
         const abs = safePath(worktree, path);
         if (!existsSync(abs)) return `FILE_NOT_FOUND:${path}`;
-        return readFileSync(abs, 'utf8').slice(0, 4000);
+        return readFileSync(abs, 'utf8').slice(0, 24000);
       },
     }),
     writeFile: tool({
@@ -96,6 +96,24 @@ async function runSingleAttempt(task: Task, worktree: string, outDir: string, ap
         return `written:${path}`;
       },
     }),
+    runChecks: tool({
+      description: 'Запустити acceptance-перевірки у робочому дереві й отримати текст помилок.',
+      inputSchema: z.object({}),
+      execute: async () => {
+        const out: { cmd: string; ok: boolean; error?: string }[] = [];
+        for (const cmd of task.acceptance ?? []) {
+          try {
+            execSync(cmd, { cwd: worktree, encoding: 'utf8', stdio: 'pipe', timeout: 60_000 });
+            out.push({ cmd, ok: true });
+          } catch (e: unknown) {
+            const err = e as { stdout?: string; stderr?: string; message?: string };
+            const details = `${err.stdout ?? ''}\n${err.stderr ?? ''}`.trim() || err.message || 'failed';
+            out.push({ cmd, ok: false, error: details.slice(-1500) });
+          }
+        }
+        return out;
+      },
+    }),
     submitArtifact: tool({
       description: 'Завершити роботу над задачею з коротким звітом.',
       inputSchema: z.object({ summary: z.string() }),
@@ -103,18 +121,19 @@ async function runSingleAttempt(task: Task, worktree: string, outDir: string, ap
     }),
   };
 
-  const maxSteps = Math.min(Math.max(5, task.budget.max_turns), 6);
+  const maxSteps = Math.min(Math.max(6, task.budget.max_turns + 2), 8);
   const delays = [15_000, 30_000, 45_000];
 
   for (let retry = 0; retry <= delays.length; retry += 1) {
     try {
       const res = await generateText({
         model: google(MODEL_ID),
+        temperature: 0,
         prompt: [
           `Виконай задачу ${task.id} у робочому дереві.`,
           `Інструкція: ${task.input}`,
           `Дозволені файли: ${(task.files ?? []).join(', ') || 'НЕ змінюй і НЕ створюй жодних файлів'}.`,
-          "Якщо задача просить створити або змінити файл — обов'язково виклич writeFile (для тестів імпортуй { describe, it, expect } from 'vitest') перед submitArtifact.",
+          "Для тестів імпортуй { describe, it, expect } from 'vitest'. Після будь-якої правки через writeFile обов'язково виклич runChecks; якщо перевірка впала — виправ файл за текстом помилки і повтори runChecks перед submitArtifact.",
           'Якщо задача просить лише перевірити або не стосується коду — нічого не редагуй і одразу виклич submitArtifact.',
         ].join('\n'),
         tools,
@@ -140,13 +159,14 @@ async function runSingleAttempt(task: Task, worktree: string, outDir: string, ap
     }
   }
 
+  const acceptance = checkAcceptance(task, worktree);
+  unlinkNodeModules(resolve(worktree, 'node_modules'));
+
   let patch = '';
   try {
-    execFileSync('git', ['add', '-A', '--', '.', ':!node_modules'], { cwd: worktree });
+    execFileSync('git', ['add', '-A'], { cwd: worktree });
     patch = execFileSync('git', ['diff', '--cached'], { cwd: worktree, encoding: 'utf8' });
   } catch {}
-
-  const acceptance = checkAcceptance(task, worktree);
   const ended = new Date();
   const durationS = Math.round((ended.getTime() - started.getTime()) / 100) / 10;
   const costUsdEstimate =
