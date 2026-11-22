@@ -1,7 +1,16 @@
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import { generateText, hasToolCall, tool } from 'ai';
+import { generateText, hasToolCall, isStepCount, tool } from 'ai';
 import { execFileSync } from 'node:child_process';
-import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import {
+  appendFileSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmdirSync,
+  symlinkSync,
+  unlinkSync,
+  writeFileSync,
+} from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { z } from 'zod';
 import { estimateCost } from '../../src/models';
@@ -10,6 +19,12 @@ import { grade } from './graders';
 
 const K = Math.max(1, Number(process.env.EVAL_K ?? 3));
 const ONLY_BUCKET = process.env.EVAL_BUCKET ?? '';
+const ONLY_IDS = new Set(
+  (process.env.EVAL_IDS ?? '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean),
+);
 const BANK = process.argv[2] ?? 'docs/lab3/tasks.jsonl';
 const LOG = 'docs/lab3/evals.jsonl';
 const MODEL_ID = process.env.EVAL_MODEL ?? 'gemini-3.5-flash-lite';
@@ -33,6 +48,23 @@ function safePath(root: string, rel: string): string {
     throw new Error(`Заборонений шлях: ${rel}`);
   }
   return abs;
+}
+
+function linkNodeModules(worktree: string): string {
+  const src = resolve('node_modules');
+  const dst = resolve(worktree, 'node_modules');
+  if (!existsSync(dst) && existsSync(src)) {
+    symlinkSync(src, dst, process.platform === 'win32' ? 'junction' : 'dir');
+  }
+  return dst;
+}
+
+function unlinkNodeModules(dst: string): void {
+  if (!existsSync(dst)) return;
+  try {
+    if (process.platform === 'win32') rmdirSync(dst);
+    else unlinkSync(dst);
+  } catch {}
 }
 
 async function runSingleAttempt(task: Task, worktree: string, outDir: string, apiKey: string) {
@@ -66,17 +98,19 @@ async function runSingleAttempt(task: Task, worktree: string, outDir: string, ap
     }),
   };
 
+  const maxSteps = Math.min(Math.max(2, task.budget.max_turns), 5);
+
   try {
     const res = await generateText({
       model: google(MODEL_ID),
       prompt: [
         `Виконай задачу ${task.id} у робочому дереві.`,
         `Інструкція: ${task.input}`,
-        `Дозволені файли: ${(task.files ?? []).join(', ') || 'не змінюй файли'}.`,
-        'Після завершення виклич submitArtifact.',
+        `Дозволені файли: ${(task.files ?? []).join(', ') || 'НЕ змінюй і НЕ створюй жодних файлів'}.`,
+        'Якщо задача просить лише перевірити або не стосується коду — нічого не редагуй і одразу виклич submitArtifact.',
       ].join('\n'),
       tools,
-      stopWhen: [hasToolCall('submitArtifact')],
+      stopWhen: [isStepCount(maxSteps), hasToolCall('submitArtifact')],
     });
     outputText = res.text || 'completed';
     inputTokens = res.totalUsage?.inputTokens ?? null;
@@ -153,7 +187,8 @@ async function main() {
     .split(/\r?\n/)
     .filter((l) => l.trim() !== '')
     .map((l) => JSON.parse(l) as Task)
-    .filter((t) => ONLY_BUCKET === '' || t.bucket === ONLY_BUCKET);
+    .filter((t) => ONLY_BUCKET === '' || t.bucket === ONLY_BUCKET)
+    .filter((t) => ONLY_IDS.size === 0 || ONLY_IDS.has(t.id));
 
   if (tasks.length === 0) {
     throw new Error(`Немає задач для запуску (bucket=${ONLY_BUCKET || 'all'})`);
@@ -172,8 +207,9 @@ async function main() {
       const branch = `eval/${task.id}-${attempt}-${Date.now()}`;
       const tree = join('..', 'eval-runs', `${task.id}-${attempt}-${process.pid}`);
       git(['worktree', 'add', '-b', branch, tree, 'HEAD']);
+      const nmDst = linkNodeModules(tree);
       try {
-        const outDir = join('docs', 'lab3', 'runs', `eval-${task.id}-a${attempt}-${Date.now()}`);
+        const outDir = join('.harness', 'eval-tmp', `${task.id}-a${attempt}`);
         const r = await runSingleAttempt(task, tree, outDir, apiKey);
         const results = grade({
           task,
@@ -202,6 +238,7 @@ async function main() {
         sessionLines.push({ task_id: task.id, bucket: row.bucket, pass: row.pass });
         console.log(`${task.id} #${attempt}/${K} [${row.bucket}]: ${passed ? 'PASS' : 'FAIL'} (${r.durationS}s)`);
       } finally {
+        unlinkNodeModules(nmDst);
         try { git(['worktree', 'remove', tree, '--force']); } catch {}
         try { git(['branch', '-D', branch]); } catch {}
       }
