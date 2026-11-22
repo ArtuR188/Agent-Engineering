@@ -24,3 +24,9 @@
   * `t-04`: реальне самозупинення `gemini-3.5-flash-lite` на `isStepCount(2)` (`2/2` кроків, `submitted=false`);
   * `t-05`: `quota429` перевів брейкер у `open` (`provider_quota_429`);
   * `t-06`: наступний запуск заблоковано брейкером без виклику API (`~15 хв` cool-down).
+
+## 2026-11-22 — Крок 04: evals у CI, заморожений банк і регресійна брама (`harness/evals-2026-11-22`)
+* **Банк задач:** розширено й заморожено `docs/lab3/tasks.jsonl` до 22 задач (`12` `regression`, `5` `new`, `5` `edge`, `frozen_at: 2026-11-22`) з полями `label`, `source`, `bucket`, `frozen_at`; 2 некоректні задачі винесено в `docs/lab3/tasks-rejected.jsonl`.
+* **Оцінювачі та раннер:** реалізовано детерміновані оцінювачі `scripts/evals/graders.ts` (`acceptance`, `touches_only_listed`, `no_changes`, `tests_untouched`) з офлайн-тестами `tests/evals/graders.test.ts`, раннер `scripts/evals/run-evals.ts` (`k` спроб у чистих `git worktree`, інструмент `runChecks` із виводом помилок, `temperature: 0`, ретраї на `429/503`) і поіменну браму `scripts/evals/gate.ts`.
+* **Базовий рівень (`6483c94`, `k=3`):** `regression` `pass@3=1.0 / pass^3=1.0`, `new` `pass@3=0.8 / pass^3=0.6`, `edge` `pass@3=1.0 / pass^3=1.0`.
+* **Регресійна брама в CI:** додано джобу `evals` у `.github/workflows/gates.yml` (`EVAL_BUCKET=regression`, `EVAL_K=1`), включено в обов'язкові перевірки `main` (`docs/lab3/ruleset-evals.png`). Доведено спрацювання на червоному прогоні (`45069072666/job/137352528919`) та відновлення на зеленому (`https://github.com/ArtuR188/Agent-Engineering/actions/runs/45079416697/job/137384759605?pr=4`).
