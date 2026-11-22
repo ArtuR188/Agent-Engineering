@@ -1,0 +1,50 @@
+diff --git a/src/harness/stop.ts b/src/harness/stop.ts
+index eb062ef..4367df7 100644
+--- a/src/harness/stop.ts
++++ b/src/harness/stop.ts
+@@ -18,6 +18,38 @@ export function appendStopLog(entry: StopLogEntry, logPath = STOP_LOG_PATH): voi
+   appendFileSync(logPath, `${JSON.stringify(entry)}\n`, 'utf8');
+ }
+ 
++/**
++ * Перевіряє, чи є помилка причиною перевищення квоти (429 / RESOURCE_EXHAUSTED тощо).
++ */
++export function isQuota429Error(err: unknown): boolean {
++  if (!err) return false;
++  if (typeof err === 'object') {
++    const errorObj = err as Record<string, unknown>;
++    const status = errorObj.status ?? errorObj.statusCode;
++    if (status === 429 || status === '429') return true;
++
++    const message = String(errorObj.message ?? errorObj.toString?.() ?? '');
++    if (
++      message.includes('429') ||
++      message.includes('RESOURCE_EXHAUSTED') ||
++      message.toLowerCase().includes('quota') ||
++      message.toLowerCase().includes('rate limit')
++    ) {
++      return true;
++    }
++  }
++  const str = String(err);
++  if (
++    str.includes('429') ||
++    str.includes('RESOURCE_EXHAUSTED') ||
++    str.toLowerCase().includes('quota') ||
++    str.toLowerCase().includes('rate limit')
++  ) {
++    return true;
++  }
++  return false;
++}
++
+ /**
+  * Обгортка над isStepCount(n) із AI SDK: при спрацюванні фіксує рядок у stop-log.jsonl.
+  */
+@@ -70,4 +102,4 @@ export function createTaskTimeout(timeoutMs: number, taskId: string, logPath = S
+     signal: controller.signal,
+     clear: () => clearTimeout(timer),
+   };
+-}
+\ No newline at end of file
++}

@@ -1,0 +1,24 @@
+{
+    "task_id":  "t-11",
+    "bucket":  "regression",
+    "input":  "РџРµСЂРµРІС–СЂ РѕР±РіРѕСЂС‚РєСѓ Р·СѓРїРёРЅРµРЅРЅСЏ Сѓ src/harness/stop.ts С‚Р° РїРµСЂРµРєРѕРЅР°Р№СЃСЏ Сѓ РїСЂРѕС…РѕРґР¶РµРЅРЅС– typecheck.",
+    "files":  [
+                  "src/harness/stop.ts"
+              ],
+    "agent_path":  "ai-sdk (gemini-3.5-flash-lite)",
+    "artifact_dir":  "docs/lab3/runs/t-11-1795391118146",
+    "started_at":  "2026-11-22T23:45:18.146Z",
+    "ended_at":  "2026-11-22T23:45:36.134Z",
+    "duration_s":  18,
+    "exit_status":  "ok",
+    "acceptance":  [
+                       {
+                           "cmd":  "npm run typecheck",
+                           "exit":  0
+                       }
+                   ],
+    "acceptance_passed":  true,
+    "input_tokens":  2491,
+    "output_tokens":  79,
+    "cost_usd_estimate":  0.002886
+}

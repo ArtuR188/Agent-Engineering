@@ -121,7 +121,7 @@ async function runSingleAttempt(task: Task, worktree: string, outDir: string, ap
     }),
   };
 
-  const maxSteps = Math.min(Math.max(6, task.budget.max_turns + 2), 8);
+  const maxSteps = process.env.EVAL_MAX_STEPS ? Math.max(1, Number(process.env.EVAL_MAX_STEPS)) : Math.min(Math.max(6, task.budget.max_turns + 2), 8);
   const delays = [15_000, 30_000, 45_000];
 
   for (let retry = 0; retry <= delays.length; retry += 1) {
@@ -146,7 +146,7 @@ async function runSingleAttempt(task: Task, worktree: string, outDir: string, ap
       break;
     } catch (err) {
       const msg = String(err);
-      const isTransient = /429|503|RESOURCE_EXHAUSTED|UNAVAILABLE|rate limit|high demand/i.test(msg);
+      const isTransient = /429|503|RESOURCE_EXHAUSTED|UNAVAILABLE|quota|rate[- ]?limit|high demand/i.test(msg);
       const waitMs = delays[retry];
       if (isTransient && waitMs !== undefined) {
         console.log(`  transient API error on ${task.id}, retry ${retry + 1}/${delays.length} in ${waitMs / 1000}s...`);
@@ -176,6 +176,33 @@ async function runSingleAttempt(task: Task, worktree: string, outDir: string, ap
 
   writeFileSync(join(outDir, 'patch.diff'), patch, 'utf8');
   writeFileSync(join(outDir, 'output.txt'), outputText, 'utf8');
+  if (process.env.EVAL_SAVE_RUNS === '1') {
+    writeFileSync(
+      join(outDir, 'run.json'),
+      JSON.stringify(
+        {
+          task_id: task.id,
+          bucket: task.bucket ?? 'regression',
+          input: task.input,
+          files: task.files ?? [],
+          agent_path: `ai-sdk (${MODEL_ID})`,
+          artifact_dir: outDir.replace(/\\/g, '/'),
+          started_at: started.toISOString(),
+          ended_at: ended.toISOString(),
+          duration_s: durationS,
+          exit_status: exitStatus,
+          acceptance,
+          acceptance_passed: acceptance.every((a) => a.exit === 0),
+          input_tokens: inputTokens,
+          output_tokens: outputTokens,
+          cost_usd_estimate: costUsdEstimate,
+        },
+        null,
+        2,
+      ) + '\n',
+      'utf8',
+    );
+  }
 
   return {
     patch,

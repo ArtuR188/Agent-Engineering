@@ -1,0 +1,28 @@
+{
+    "task_id":  "t-02",
+    "bucket":  "regression",
+    "input":  "Р”РѕРґР°Р№ JSDoc РєРѕРјРµРЅС‚Р°СЂ РґРѕ С„СѓРЅРєС†С–С— fetchChunk Сѓ src/mcp/tools.ts.",
+    "files":  [
+                  "src/mcp/tools.ts"
+              ],
+    "agent_path":  "ai-sdk (gemini-3.5-flash-lite)",
+    "artifact_dir":  "docs/lab3/runs/t-02-1795391424082",
+    "started_at":  "2026-11-22T23:50:24.082Z",
+    "ended_at":  "2026-11-22T23:50:33.388Z",
+    "duration_s":  9.3,
+    "exit_status":  "ok",
+    "acceptance":  [
+                       {
+                           "cmd":  "npm run typecheck",
+                           "exit":  0
+                       },
+                       {
+                           "cmd":  "npm run lint",
+                           "exit":  0
+                       }
+                   ],
+    "acceptance_passed":  true,
+    "input_tokens":  355,
+    "output_tokens":  21,
+    "cost_usd_estimate":  0.00046
+}

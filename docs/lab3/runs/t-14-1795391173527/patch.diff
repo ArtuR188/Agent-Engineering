@@ -1,0 +1,56 @@
+diff --git a/src/harness/breaker.test.ts b/src/harness/breaker.test.ts
+index 2358e41..88beac0 100644
+--- a/src/harness/breaker.test.ts
++++ b/src/harness/breaker.test.ts
+@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
+ import { tmpdir } from 'node:os';
+ import { join } from 'node:path';
+ import { afterEach, describe, expect, it } from 'vitest';
+-import { loadBreaker, mayRun, recordBreaker } from './breaker';
++import { loadBreaker, mayRun, recordBreaker, resetBreakerForTest } from './breaker';
+ 
+ const dirs: string[] = [];
+ function tempFile() {
+@@ -60,4 +60,16 @@ describe('circuit breaker', () => {
+     expect(closed.fails).toBe(0);
+     expect(loadBreaker(file).cooldownMin).toBe(15);
+   });
+-});
+\ No newline at end of file
++
++  it('resets breaker state correctly with resetBreakerForTest', () => {
++    const file = tempFile();
++    const t0 = Date.parse('2026-11-22T12:00:00Z');
++    recordBreaker({ ok: false, quota429: true, tripReason: 'HTTP 429' }, file, t0);
++    expect(loadBreaker(file).state).toBe('open');
++
++    const resetState = resetBreakerForTest(file);
++    expect(resetState.state).toBe('closed');
++    expect(resetState.fails).toBe(0);
++    expect(loadBreaker(file).state).toBe('closed');
++  });
++});
+diff --git a/src/harness/breaker.ts b/src/harness/breaker.ts
+index 8e9a3eb..40327c7 100644
+--- a/src/harness/breaker.ts
++++ b/src/harness/breaker.ts
+@@ -58,6 +58,12 @@ export function saveBreaker(state: BreakerState, filePath = BREAKER_FILE): void
+   writeFileSync(filePath, `${JSON.stringify(valid, null, 2)}\n`, 'utf8');
+ }
+ 
++export function resetBreakerForTest(filePath = BREAKER_FILE): BreakerState {
++  const resetState: BreakerState = { ...DEFAULT_STATE, recentResults: [] };
++  saveBreaker(resetState, filePath);
++  return resetState;
++}
++
+ export function mayRun(
+   filePath = BREAKER_FILE,
+   nowMs = Date.now(),
+@@ -164,4 +170,4 @@ export function recordBreaker(
+ 
+   saveBreaker(next, filePath);
+   return next;
+-}
+\ No newline at end of file
++}

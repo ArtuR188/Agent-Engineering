@@ -1,0 +1,24 @@
+diff --git a/src/mcp/tools.ts b/src/mcp/tools.ts
+index f712624..db031e2 100644
+--- a/src/mcp/tools.ts
++++ b/src/mcp/tools.ts
+@@ -56,10 +56,17 @@ export async function searchCorpus(deps: Deps, raw: unknown): Promise<string[]>
+   });
+ }
+ 
++/**
++ * Отримує текстовий фрагмент за його ідентифікатором із вказаними залежностями та сирими вхідними даними.
++ * @param deps Залежності, що містять індекс, слова BM25 та ембедер.
++ * @param raw Сирі вхідні дані з ідентифікатором фрагмента.
++ * @returns Відформатований рядок із цитатою та текстом фрагмента.
++ * @throws {Refusal} Якщо фрагмент не знайдено в індексі.
++ */
+ export function fetchChunk(deps: Deps, raw: unknown): string {
+   const { id } = fetchInput.parse(raw);
+   const chunk = deps.index.chunks.find((c) => c.id === id);
+   if (!chunk) throw new Refusal(`фрагмента ${id} немає в індексі`);
+   const c = toCitation(chunk, clip(chunk.text));
+   return `${renderCitation(c)}\n${clip(chunk.text)}`;
+-}
+\ No newline at end of file
++}

@@ -1,0 +1,24 @@
+{
+    "task_id":  "t-17",
+    "bucket":  "new",
+    "input":  "РџРµСЂРµРІС–СЂ, С‡Рё РїСЂРѕС…РѕРґРёС‚СЊ npm run lint РЅР° РїРѕС‚РѕС‡РЅРѕРјСѓ СЂРµРїРѕР·РёС‚РѕСЂС–С— С‚Р° РЅРµ Р·РјС–РЅСЋР№ С„Р°Р№Р»Рё.",
+    "files":  [
+
+              ],
+    "agent_path":  "ai-sdk (gemini-3.5-flash-lite)",
+    "artifact_dir":  "docs/lab3/runs/t-17-1795391259617",
+    "started_at":  "2026-11-22T23:47:39.617Z",
+    "ended_at":  "2026-11-22T23:47:48.659Z",
+    "duration_s":  9,
+    "exit_status":  "ok",
+    "acceptance":  [
+                       {
+                           "cmd":  "npm run lint",
+                           "exit":  0
+                       }
+                   ],
+    "acceptance_passed":  true,
+    "input_tokens":  760,
+    "output_tokens":  52,
+    "cost_usd_estimate":  0.00102
+}
