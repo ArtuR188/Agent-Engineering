@@ -1,3 +1,5 @@
 {"at":"2026-11-22T12:03:33.199Z","taskId":"t-04","limit":"isStepCount","n":2,"detail":"Досягнуто ліміт кроків циклу (2) до виклику submitArtifact","action":"зупинено цикл generateText, задача помічена як incomplete"}
 {"at":"2026-11-22T12:03:34.185Z","taskId":"t-05","limit":"quota429","detail":"HTTP 429 Too Many Requests (симуляція вичерпання квоти провайдера)","action":"брейкер негайно відкрито, наступні задачі заблоковано на cool-down"}
 {"at":"2026-11-22T12:03:35.122Z","taskId":"t-06","limit":"breakerOpen","detail":"open (provider_quota_429): залишилось ~15 хв перепочинку","action":"задачу пропущено без виклику моделі (фабрика зупинена брейкером)"}
+{"at":"2026-11-23T09:22:38.959Z","taskId":"err-harness-01","limit":"isStepCount","n":2,"detail":"Досягнуто ліміт кроків циклу (2) до виклику submitArtifact","action":"зупинено цикл generateText, задача помічена як incomplete"}
+{"at":"2026-11-23T09:22:41.880Z","taskId":"err-harness-02","limit":"taskTimeout","n":1400,"detail":"Перевищено таймаут задачі (1400 ms)","action":"перервано виклик моделі через AbortController"}

@@ -1,4 +1,6 @@
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { trace } from '@opentelemetry/api';
+import { initTelemetry, shutdownTelemetry } from '../../src/telemetry/otel';
 import { generateText, hasToolCall, isStepCount, tool } from 'ai';
 import { execFileSync, execSync } from 'node:child_process';
 import {
@@ -31,7 +33,7 @@ const MODEL_ID = process.env.EVAL_MODEL ?? 'gemini-3.5-flash-lite';
 const SHA = execFileSync('git', ['rev-parse', '--short', 'HEAD'], { encoding: 'utf8' }).trim();
 
 function loadEnvLocal(): void {
-  if (process.env.GEMINI_API_KEY || !existsSync('.env.local')) return;
+  if (!existsSync('.env.local')) return;
   for (const line of readFileSync('.env.local', 'utf8').split(/\r?\n/)) {
     const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/);
     if (!m) continue;
@@ -68,7 +70,11 @@ function unlinkNodeModules(dst: string): void {
 }
 
 async function runSingleAttempt(task: Task, worktree: string, outDir: string, apiKey: string) {
-  mkdirSync(outDir, { recursive: true });
+  const tracer = trace.getTracer('harness');
+  return tracer.startActiveSpan(`task ${task.id}`, async (span) => {
+    const traceId = span.spanContext().traceId;
+    try {
+      mkdirSync(outDir, { recursive: true });
   const started = new Date();
   let outputText = '';
   let exitStatus: 'ok' | 'agent_failed' | 'timeout' = 'ok';
@@ -137,9 +143,15 @@ async function runSingleAttempt(task: Task, worktree: string, outDir: string, ap
           `Дозволені файли: ${(task.files ?? []).join(', ') || 'НЕ змінюй і НЕ створюй жодних файлів'}.`,
           "Для тестів імпортуй { describe, it, expect } from 'vitest'. Після будь-якої правки через writeFile обов'язково виклич runChecks; якщо перевірка впала — виправ файл за текстом помилки і повтори runChecks перед submitArtifact.",
           'Якщо задача просить лише перевірити або не стосується коду — нічого не редагуй і одразу виклич submitArtifact.',
+          'Якщо readFile повернув помилку (файл не знайдено або шлях заборонено) — не повторюй той самий виклик вдруге; якщо вказано дозволені файли для редагування, внеси зміни через writeFile перед submitArtifact.',
         ].join('\n'),
         tools,
         stopWhen: [isStepCount(maxSteps), hasToolCall('submitArtifact')],
+        telemetry: {
+          functionId: 'harness-run-evals',
+          recordInputs: false,
+          recordOutputs: false,
+        },
       });
       exitStatus = 'ok';
       outputText = res.text || 'completed';
@@ -198,6 +210,7 @@ async function runSingleAttempt(task: Task, worktree: string, outDir: string, ap
           input_tokens: inputTokens,
           output_tokens: outputTokens,
           cost_usd_estimate: costUsdEstimate,
+          trace_id: traceId,
         },
         null,
         2,
@@ -215,7 +228,12 @@ async function runSingleAttempt(task: Task, worktree: string, outDir: string, ap
     outputTokens,
     costUsdEstimate,
     exitStatus,
+    traceId,
   };
+    } finally {
+      span.end();
+    }
+  });
 }
 
 export function summarize(
@@ -246,6 +264,8 @@ export function summarize(
 
 async function main() {
   loadEnvLocal();
+  initTelemetry();
+  try {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error('GEMINI_API_KEY не знайдено в середовищі або .env.local');
@@ -278,7 +298,10 @@ async function main() {
       git(['worktree', 'add', '-b', branch, tree, 'HEAD']);
       const nmDst = linkNodeModules(tree);
       try {
-        const outDir = join('.harness', 'eval-tmp', `${task.id}-a${attempt}`);
+        const runsBase = process.env.EVAL_RUNS_DIR || join('.harness', 'eval-tmp');
+        const outDir = process.env.EVAL_RUNS_DIR
+          ? join(runsBase, `${task.id}-${Date.now()}`)
+          : join(runsBase, `${task.id}-a${attempt}`);
         const r = await runSingleAttempt(task, tree, outDir, apiKey);
         const results = grade({
           task,
@@ -300,7 +323,7 @@ async function main() {
           output_tokens: r.outputTokens,
           cost_usd_estimate: r.costUsdEstimate,
           exit_status: r.exitStatus,
-          trace_id: null,
+          trace_id: r.traceId,
           at: new Date().toISOString(),
         };
         appendFileSync(LOG, `${JSON.stringify(row)}\n`, 'utf8');
@@ -323,6 +346,9 @@ async function main() {
   }
 
   console.table(summarize(sessionLines, K));
+  } finally {
+    await shutdownTelemetry();
+  }
 }
 
 main();

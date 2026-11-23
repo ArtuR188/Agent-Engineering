@@ -1,0 +1,26 @@
+# Trace extract: err-tool-01 (attempt 1)
+date: 2026-11-23
+class: інструмент (tool)
+trace_id: 0dde34a3a1cf21a4ac8564012572c050
+exit_status: ok
+passed: false
+acceptance: exit=1
+patch_bytes: 0
+steps_chat_local: 2
+tool_calls_local: 2
+tool_error_seen: true
+duration_s: 1.7
+tokens: in=497 out=84
+cost_usd_estimate: 0.000917
+note: readFile кинув виняток sandbox guard на шляху .env.local -> у спані execute_tool зафіксовано помилку.
+record_inputs_outputs: disabled (metadata only, no local resourceAttributes)
+
+## Observations from Langfuse v2 API (8)
+- [SPAN] task err-tool-01 | latency=1.605s | level=DEFAULT
+- [SPAN] step 1 | latency=0.578s | level=DEFAULT | gen_ai.operation.name=agent_step
+- [AGENT] invoke_agent gemini-3.5-flash-lite | latency=1.604s | level=DEFAULT | gen_ai.operation.name=invoke_agent | gen_ai.agent.name=harness-error-analysis | gen_ai.provider.name=gcp.gemini | gen_ai.request.model=gemini-3.5-flash-lite | gen_ai.response.finish_reasons=["tool-calls"] | in=497 | out=84
+- [GENERATION] chat gemini-3.5-flash-lite | latency=0.577s | level=DEFAULT | gen_ai.operation.name=chat | gen_ai.provider.name=gcp.gemini | gen_ai.request.model=gemini-3.5-flash-lite | gen_ai.response.finish_reasons=["tool-calls"] | in=224 | out=17 | cost=$0.000110
+- [TOOL] readFile | latency=0s | level=ERROR | gen_ai.operation.name=execute_tool | gen_ai.tool.name=readFile
+- [SPAN] step 2 | latency=1.024s | level=DEFAULT | gen_ai.operation.name=agent_step
+- [GENERATION] chat gemini-3.5-flash-lite | latency=1.023s | level=DEFAULT | gen_ai.operation.name=chat | gen_ai.provider.name=gcp.gemini | gen_ai.request.model=gemini-3.5-flash-lite | gen_ai.response.finish_reasons=["tool-calls"] | in=273 | out=67 | cost=$0.000249
+- [TOOL] submitArtifact | latency=0s | level=DEFAULT | gen_ai.operation.name=execute_tool | gen_ai.tool.name=submitArtifact

@@ -1,3 +1,4 @@
+import { trace } from '@opentelemetry/api';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -107,4 +108,18 @@ export function runTask(
   };
   writeFileSync(join(dir, 'run.json'), `${JSON.stringify(record, null, 2)}\n`, 'utf8');
   return record;
+}
+
+export function runTaskTraced(task: Task, opts: Parameters<typeof runTask>[1]): RunRecord {
+  const tracer = trace.getTracer('harness');
+  return tracer.startActiveSpan(`task ${task.id}`, (span) => {
+    try {
+      const rec = runTask(task, opts);
+      const withTrace: RunRecord = { ...rec, trace_id: span.spanContext().traceId };
+      writeFileSync(join(withTrace.artifact_dir, 'run.json'), `${JSON.stringify(withTrace, null, 2)}\n`, 'utf8');
+      return withTrace;
+    } finally {
+      span.end();
+    }
+  });
 }

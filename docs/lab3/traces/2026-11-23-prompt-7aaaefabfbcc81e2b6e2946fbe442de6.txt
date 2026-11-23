@@ -1,0 +1,22 @@
+# Trace extract: err-prompt-01 (attempt 1)
+date: 2026-11-23
+class: промпт (prompt)
+trace_id: 7aaaefabfbcc81e2b6e2946fbe442de6
+exit_status: ok
+passed: false
+acceptance: exit=1
+patch_bytes: 0
+steps_chat_local: 1
+tool_calls_local: 0
+tool_error_seen: false
+duration_s: 0.9
+tokens: in=224 out=99
+cost_usd_estimate: 0.000719
+note: Нечіткий промпт без вимоги записати файл: модель відповіла текстом (finish_reasons=["stop"]), 0 execute_tool, порожній patch.
+record_inputs_outputs: disabled (metadata only, no local resourceAttributes)
+
+## Observations from Langfuse v2 API (4)
+- [SPAN] task err-prompt-01 | latency=0.814s | level=DEFAULT
+- [AGENT] invoke_agent gemini-3.5-flash-lite | latency=0.814s | level=DEFAULT | gen_ai.operation.name=invoke_agent | gen_ai.agent.name=harness-error-analysis | gen_ai.provider.name=gcp.gemini | gen_ai.request.model=gemini-3.5-flash-lite | gen_ai.response.finish_reasons=["stop"] | in=224 | out=99
+- [SPAN] step 1 | latency=0.813s | level=DEFAULT | gen_ai.operation.name=agent_step
+- [GENERATION] chat gemini-3.5-flash-lite | latency=0.813s | level=DEFAULT | gen_ai.operation.name=chat | gen_ai.provider.name=gcp.gemini | gen_ai.request.model=gemini-3.5-flash-lite | gen_ai.response.finish_reasons=["stop"] | in=224 | out=99 | cost=$0.000315
