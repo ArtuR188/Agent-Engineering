@@ -1,7 +1,3 @@
-import { NodeSDK } from '@opentelemetry/sdk-node';
-import { registerTelemetry } from 'ai';
-import { LangfuseVercelAiSdkIntegration } from '@langfuse/vercel-ai-sdk';
-import { langfuseSpanProcessor } from './src/otel/langfuse';
+import { initTelemetry } from './src/telemetry/otel';
 
-new NodeSDK({ spanProcessors: [langfuseSpanProcessor] }).start();
-registerTelemetry(new LangfuseVercelAiSdkIntegration());
+initTelemetry();

@@ -1,4 +1,6 @@
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { trace } from '@opentelemetry/api';
+import { initTelemetry, shutdownTelemetry } from '../../src/telemetry/otel';
 import { generateText, hasToolCall, tool } from 'ai';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { resolve, relative } from 'node:path';
@@ -19,7 +21,7 @@ interface HarnessConfig {
 }
 
 function loadEnvLocal(): void {
-  if (process.env.GEMINI_API_KEY || !existsSync('.env.local')) return;
+  if (!existsSync('.env.local')) return;
   for (const line of readFileSync('.env.local', 'utf8').split(/\r?\n/)) {
     const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/);
     if (!m) continue;
@@ -47,6 +49,7 @@ function safeRepoPath(rel: string): string {
 
 async function main() {
   loadEnvLocal();
+  initTelemetry();
 
   const cfg = JSON.parse(readFileSync('.harness/config.json', 'utf8')) as HarnessConfig;
   if (cfg.permissionMode !== 'dontAsk' || cfg.bypassPermissions) {
@@ -135,48 +138,63 @@ async function main() {
   const google = createGoogleGenerativeAI({ apiKey });
   const timeout = createTaskTimeout(timeoutMs, taskId);
 
+  const tracer = trace.getTracer('harness');
   try {
-    const res = await generateText({
-      model: google(cfg.model),
-      prompt,
-      tools,
-      stopWhen: [stepLimit(maxSteps, taskId), hasToolCall('submitArtifact')],
-      abortSignal: timeout.signal,
+    await tracer.startActiveSpan(`task ${taskId}`, async (span) => {
+      const traceId = span.spanContext().traceId;
+      try {
+        const res = await generateText({
+          model: google(cfg.model),
+          prompt,
+          tools,
+          stopWhen: [stepLimit(maxSteps, taskId), hasToolCall('submitArtifact')],
+          abortSignal: timeout.signal,
+          telemetry: {
+            functionId: 'harness-run-loop',
+            recordInputs: false,
+            recordOutputs: false,
+          },
+        });
+
+        const submitted = res.steps.some((s) =>
+          s.toolCalls.some((tc) => tc.toolName === 'submitArtifact'),
+        );
+
+        console.log(
+          `[DONE] ${taskId}: steps=${res.steps.length}/${maxSteps}, submitted=${String(submitted)}, trace_id=${traceId}`,
+        );
+
+        if (!submitted) {
+          const st = recordBreaker({ ok: false, tripReason: `step_limit_${maxSteps}` });
+          console.error(`[STOPPED] ${taskId}: ліміт кроків ${maxSteps}, breaker=${st.state} (fails=${st.fails}), trace_id=${traceId}`);
+          process.exitCode = 1;
+          return;
+        }
+
+        const st = recordBreaker({ ok: true, madeProgress: true });
+        console.log(`[OK] ${taskId}: breaker=${st.state}, trace_id=${traceId}`);
+      } catch (err) {
+        const msg = String(err);
+        const is429 = msg.includes('429') || msg.includes('RESOURCE_EXHAUSTED');
+        if (is429) {
+          appendStopLog({
+            at: new Date().toISOString(),
+            taskId,
+            limit: 'quota429',
+            detail: `${msg.slice(0, 180)} (trace_id=${traceId})`,
+            action: 'брейкер відкрито через 429 від провайдера',
+          });
+        }
+        const st = recordBreaker({ ok: false, quota429: is429, tripReason: msg.slice(0, 80) });
+        console.error(`[ERROR] ${taskId}: ${msg.slice(0, 160)} | breaker=${st.state} | trace_id=${traceId}`);
+        process.exitCode = 1;
+      } finally {
+        span.end();
+      }
     });
-
-    const submitted = res.steps.some((s) =>
-      s.toolCalls.some((tc) => tc.toolName === 'submitArtifact'),
-    );
-
-    console.log(
-      `[DONE] ${taskId}: steps=${res.steps.length}/${maxSteps}, submitted=${String(submitted)}`,
-    );
-
-    if (!submitted) {
-      const st = recordBreaker({ ok: false, tripReason: `step_limit_${maxSteps}` });
-      console.error(`[STOPPED] ${taskId}: ліміт кроків ${maxSteps}, breaker=${st.state} (fails=${st.fails})`);
-      process.exit(1);
-    }
-
-    const st = recordBreaker({ ok: true, madeProgress: true });
-    console.log(`[OK] ${taskId}: breaker=${st.state}`);
-  } catch (err) {
-    const msg = String(err);
-    const is429 = msg.includes('429') || msg.includes('RESOURCE_EXHAUSTED');
-    if (is429) {
-      appendStopLog({
-        at: new Date().toISOString(),
-        taskId,
-        limit: 'quota429',
-        detail: msg.slice(0, 200),
-        action: 'брейкер відкрито через 429 від провайдера',
-      });
-    }
-    const st = recordBreaker({ ok: false, quota429: is429, tripReason: msg.slice(0, 80) });
-    console.error(`[ERROR] ${taskId}: ${msg.slice(0, 160)} | breaker=${st.state}`);
-    process.exit(1);
   } finally {
     timeout.clear();
+    await shutdownTelemetry();
   }
 }
 
