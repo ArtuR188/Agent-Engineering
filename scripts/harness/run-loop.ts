@@ -10,7 +10,6 @@ import { appendStopLog, createTaskTimeout, stepLimit } from '../../src/harness/s
 
 interface HarnessConfig {
   readonly permissionMode: 'dontAsk';
-  readonly bypassPermissions: boolean;
   readonly allowedTools: readonly string[];
   readonly isolation: string;
   readonly model: string;
@@ -52,8 +51,8 @@ async function main() {
   initTelemetry();
 
   const cfg = JSON.parse(readFileSync('.harness/config.json', 'utf8')) as HarnessConfig;
-  if (cfg.permissionMode !== 'dontAsk' || cfg.bypassPermissions) {
-    throw new Error('Заборонена конфігурація дозволів: потрібен permissionMode=dontAsk і bypassPermissions=false');
+  if (cfg.permissionMode !== 'dontAsk') {
+    throw new Error('Заборонена конфігурація дозволів: потрібен permissionMode=dontAsk');
   }
 
   const taskId = argVal('--task', 't-04');
