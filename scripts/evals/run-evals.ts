@@ -143,6 +143,7 @@ async function runSingleAttempt(task: Task, worktree: string, outDir: string, ap
           `Дозволені файли: ${(task.files ?? []).join(', ') || 'НЕ змінюй і НЕ створюй жодних файлів'}.`,
           "Для тестів імпортуй { describe, it, expect } from 'vitest'. Після будь-якої правки через writeFile обов'язково виклич runChecks; якщо перевірка впала — виправ файл за текстом помилки і повтори runChecks перед submitArtifact.",
           'Якщо задача просить лише перевірити або не стосується коду — нічого не редагуй і одразу виклич submitArtifact.',
+          'Якщо readFile повернув помилку (файл не знайдено або шлях заборонено) — не повторюй той самий виклик вдруге; якщо вказано дозволені файли для редагування, внеси зміни через writeFile перед submitArtifact.',
         ].join('\n'),
         tools,
         stopWhen: [isStepCount(maxSteps), hasToolCall('submitArtifact')],
