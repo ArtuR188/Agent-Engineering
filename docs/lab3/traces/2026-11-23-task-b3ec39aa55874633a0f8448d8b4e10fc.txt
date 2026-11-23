@@ -1,0 +1,29 @@
+# Trace extract: err-task-01 (attempt 1)
+date: 2026-11-23
+class: задача (task)
+trace_id: b3ec39aa55874633a0f8448d8b4e10fc
+exit_status: ok
+passed: false
+acceptance: exit=1 (npm ERR! Missing script: "nonexistent-acceptance-check" npm ERR! npm ERR! To see a list of scripts, run: npm ERR! npm run npm ERR! <local-log-omitted>)
+patch_bytes: 0
+steps_chat_local: 3
+tool_calls_local: 3
+tool_error_seen: false
+duration_s: 2.8
+tokens: in=870 out=57
+cost_usd_estimate: 0.001155
+note: Зламаний acceptance (неіснуючий npm-скрипт): усі спроби k=2 падають на тій самій команді.
+record_inputs_outputs: disabled (metadata only, no local resourceAttributes)
+
+## Observations from Langfuse v2 API (11)
+- [SPAN] task err-task-01 | latency=2.389s | level=DEFAULT
+- [AGENT] invoke_agent gemini-3.5-flash-lite | latency=2.385s | level=DEFAULT | gen_ai.operation.name=invoke_agent | gen_ai.agent.name=harness-error-analysis | gen_ai.provider.name=gcp.gemini | gen_ai.request.model=gemini-3.5-flash-lite | gen_ai.response.finish_reasons=["tool-calls"] | in=870 | out=57
+- [GENERATION] chat gemini-3.5-flash-lite | latency=0.598s | level=DEFAULT | gen_ai.operation.name=chat | gen_ai.provider.name=gcp.gemini | gen_ai.request.model=gemini-3.5-flash-lite | gen_ai.response.finish_reasons=["tool-calls"] | in=213 | out=16 | cost=$0.000104
+- [SPAN] step 1 | latency=0.602s | level=DEFAULT | gen_ai.operation.name=agent_step
+- [TOOL] readFile | latency=0.001s | level=DEFAULT | gen_ai.operation.name=execute_tool | gen_ai.tool.name=readFile
+- [SPAN] step 2 | latency=1.101s | level=DEFAULT | gen_ai.operation.name=agent_step
+- [GENERATION] chat gemini-3.5-flash-lite | latency=0.67s | level=DEFAULT | gen_ai.operation.name=chat | gen_ai.provider.name=gcp.gemini | gen_ai.request.model=gemini-3.5-flash-lite | gen_ai.response.finish_reasons=["tool-calls"] | in=259 | out=9 | cost=$0.000100
+- [TOOL] runChecks | latency=0.43s | level=DEFAULT | gen_ai.operation.name=execute_tool | gen_ai.tool.name=runChecks
+- [GENERATION] chat gemini-3.5-flash-lite | latency=0.653s | level=DEFAULT | gen_ai.operation.name=chat | gen_ai.provider.name=gcp.gemini | gen_ai.request.model=gemini-3.5-flash-lite | gen_ai.response.finish_reasons=["tool-calls"] | in=398 | out=32 | cost=$0.000199
+- [SPAN] step 3 | latency=0.653s | level=DEFAULT | gen_ai.operation.name=agent_step
+- [TOOL] submitArtifact | latency=0s | level=DEFAULT | gen_ai.operation.name=execute_tool | gen_ai.tool.name=submitArtifact

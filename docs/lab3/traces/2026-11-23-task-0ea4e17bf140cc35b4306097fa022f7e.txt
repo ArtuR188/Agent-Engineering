@@ -1,0 +1,27 @@
+# Trace extract: err-task-01 (attempt 2)
+date: 2026-11-23
+class: задача (task)
+trace_id: 0ea4e17bf140cc35b4306097fa022f7e
+exit_status: ok
+passed: false
+acceptance: exit=1 (npm ERR! Missing script: "nonexistent-acceptance-check" npm ERR! npm ERR! To see a list of scripts, run: npm ERR! npm run npm ERR! <local-log-omitted>)
+patch_bytes: 0
+steps_chat_local: 2
+tool_calls_local: 3
+tool_error_seen: false
+duration_s: 2.3
+tokens: in=609 out=58
+cost_usd_estimate: 0.000899
+note: Зламаний acceptance (неіснуючий npm-скрипт): усі спроби k=2 падають на тій самій команді.
+record_inputs_outputs: disabled (metadata only, no local resourceAttributes)
+
+## Observations from Langfuse v2 API (9)
+- [SPAN] task err-task-01 | latency=1.879s | level=DEFAULT
+- [GENERATION] chat gemini-3.5-flash-lite | latency=0.752s | level=DEFAULT | gen_ai.operation.name=chat | gen_ai.provider.name=gcp.gemini | gen_ai.request.model=gemini-3.5-flash-lite | gen_ai.response.finish_reasons=["tool-calls"] | in=213 | out=25 | cost=$0.000126
+- [AGENT] invoke_agent gemini-3.5-flash-lite | latency=1.879s | level=DEFAULT | gen_ai.operation.name=invoke_agent | gen_ai.agent.name=harness-error-analysis | gen_ai.provider.name=gcp.gemini | gen_ai.request.model=gemini-3.5-flash-lite | gen_ai.response.finish_reasons=["tool-calls"] | in=609 | out=58
+- [SPAN] step 1 | latency=1.177s | level=DEFAULT | gen_ai.operation.name=agent_step
+- [TOOL] readFile | latency=0.424s | level=DEFAULT | gen_ai.operation.name=execute_tool | gen_ai.tool.name=readFile
+- [TOOL] runChecks | latency=0.424s | level=DEFAULT | gen_ai.operation.name=execute_tool | gen_ai.tool.name=runChecks
+- [SPAN] step 2 | latency=0.7s | level=DEFAULT | gen_ai.operation.name=agent_step
+- [GENERATION] chat gemini-3.5-flash-lite | latency=0.699s | level=DEFAULT | gen_ai.operation.name=chat | gen_ai.provider.name=gcp.gemini | gen_ai.request.model=gemini-3.5-flash-lite | gen_ai.response.finish_reasons=["tool-calls"] | in=396 | out=33 | cost=$0.000201
+- [TOOL] submitArtifact | latency=0s | level=DEFAULT | gen_ai.operation.name=execute_tool | gen_ai.tool.name=submitArtifact

@@ -1,0 +1,22 @@
+# Trace extract: err-harness-02 (attempt 1)
+date: 2026-11-23
+class: харнес (harness)
+trace_id: 12f59e6f04c93c40fbc21ddb0ec97fe3
+exit_status: timeout
+passed: false
+acceptance: exit_status=timeout, submitted=false
+patch_bytes: 0
+steps_chat_local: 0
+tool_calls_local: 0
+tool_error_seen: false
+duration_s: 1.4
+tokens: in=n/a out=n/a
+cost_usd_estimate: n/a
+note: Зупинка createTaskTimeout(1400ms) із src/harness/stop.ts: exit_status=timeout, запис у docs/lab3/stop-log.jsonl.
+record_inputs_outputs: disabled (metadata only, no local resourceAttributes)
+
+## Observations from Langfuse v2 API (4)
+- [SPAN] task err-harness-02 | latency=1.442s | level=DEFAULT
+- [AGENT] invoke_agent gemini-3.5-flash-lite | latency=1.441s | level=ERROR | gen_ai.operation.name=invoke_agent | gen_ai.agent.name=harness-error-analysis | gen_ai.provider.name=gcp.gemini | gen_ai.request.model=gemini-3.5-flash-lite | statusMessage=AI SDK operation failed
+- [GENERATION] chat gemini-3.5-flash-lite | latency=1.439s | level=ERROR | gen_ai.operation.name=chat | gen_ai.provider.name=gcp.gemini | gen_ai.request.model=gemini-3.5-flash-lite | statusMessage=AI SDK operation failed
+- [SPAN] step 1 | latency=1.439s | level=ERROR | gen_ai.operation.name=agent_step | statusMessage=AI SDK operation failed

@@ -1,0 +1,29 @@
+# Trace extract: err-model-03 (attempt 1)
+date: 2026-11-23
+class: модель (model)
+trace_id: 563e2771a9cf382ff61b8a136f6d9261
+exit_status: ok
+passed: false
+acceptance: exit=1 ([ [ 'a', 'b,c', 'd\ne' ], [ '1', '"x"', '3' ] ])
+patch_bytes: 2060
+steps_chat_local: 3
+tool_calls_local: 3
+tool_error_seen: false
+duration_s: 3.5
+tokens: in=1565 out=670
+cost_usd_estimate: 0.004915
+note: Запасний кандидат класу модель: перевірка обробки лапок і переносів рядків у CSV.
+record_inputs_outputs: disabled (metadata only, no local resourceAttributes)
+
+## Observations from Langfuse v2 API (11)
+- [SPAN] task err-model-03 | latency=3.431s | level=DEFAULT
+- [AGENT] invoke_agent gemini-3.5-flash-lite | latency=3.43s | level=DEFAULT | gen_ai.operation.name=invoke_agent | gen_ai.agent.name=harness-error-analysis | gen_ai.provider.name=gcp.gemini | gen_ai.request.model=gemini-3.5-flash-lite | gen_ai.response.finish_reasons=["tool-calls"] | in=1565 | out=670
+- [GENERATION] chat gemini-3.5-flash-lite | latency=0.596s | level=DEFAULT | gen_ai.operation.name=chat | gen_ai.provider.name=gcp.gemini | gen_ai.request.model=gemini-3.5-flash-lite | gen_ai.response.finish_reasons=["tool-calls"] | in=256 | out=18 | cost=$0.000122
+- [SPAN] step 1 | latency=0.596s | level=DEFAULT | gen_ai.operation.name=agent_step
+- [TOOL] readFile | latency=0s | level=DEFAULT | gen_ai.operation.name=execute_tool | gen_ai.tool.name=readFile
+- [SPAN] step 2 | latency=2.006s | level=DEFAULT | gen_ai.operation.name=agent_step
+- [GENERATION] chat gemini-3.5-flash-lite | latency=2.004s | level=DEFAULT | gen_ai.operation.name=chat | gen_ai.provider.name=gcp.gemini | gen_ai.request.model=gemini-3.5-flash-lite | gen_ai.response.finish_reasons=["tool-calls"] | in=321 | out=643 | cost=$0.001704
+- [TOOL] writeFile | latency=0.001s | level=DEFAULT | gen_ai.operation.name=execute_tool | gen_ai.tool.name=writeFile
+- [SPAN] step 3 | latency=0.825s | level=DEFAULT | gen_ai.operation.name=agent_step
+- [GENERATION] chat gemini-3.5-flash-lite | latency=0.758s | level=DEFAULT | gen_ai.operation.name=chat | gen_ai.provider.name=gcp.gemini | gen_ai.request.model=gemini-3.5-flash-lite | gen_ai.response.finish_reasons=["tool-calls"] | in=988 | out=9 | cost=$0.000319
+- [TOOL] runChecks | latency=0.066s | level=DEFAULT | gen_ai.operation.name=execute_tool | gen_ai.tool.name=runChecks

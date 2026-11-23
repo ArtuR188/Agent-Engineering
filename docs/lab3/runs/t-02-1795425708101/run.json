@@ -1,0 +1,29 @@
+{
+  "task_id": "t-02",
+  "bucket": "regression",
+  "input": "Додай JSDoc коментар до функції fetchChunk у src/mcp/tools.ts.",
+  "files": [
+    "src/mcp/tools.ts"
+  ],
+  "agent_path": "ai-sdk (gemini-3.5-flash-lite)",
+  "artifact_dir": "docs/lab3/runs/t-02-1795425708101",
+  "started_at": "2026-11-23T09:21:48.102Z",
+  "ended_at": "2026-11-23T09:22:06.042Z",
+  "duration_s": 17.9,
+  "exit_status": "ok",
+  "acceptance": [
+    {
+      "cmd": "npm run typecheck",
+      "exit": 0
+    },
+    {
+      "cmd": "npm run lint",
+      "exit": 0
+    }
+  ],
+  "acceptance_passed": true,
+  "input_tokens": 5819,
+  "output_tokens": 992,
+  "cost_usd_estimate": 0.010779,
+  "trace_id": "e4498da066a2387a729c19e098ce6119"
+}
