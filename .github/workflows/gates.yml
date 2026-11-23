@@ -160,7 +160,8 @@ jobs:
           EVAL_K: '1'
           EVAL_RETRIES: '1'
           EVAL_RETRY_BASE_MS: '3000'
-
+          EVAL_BUCKET: regression
+          EVAL_IDS: ${{ github.event_name == 'pull_request' && 't-01' || '' }}
           EVAL_MODEL: gemini-3.5-flash-lite
           EVAL_RESET_LOG: '1'
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
