@@ -1,0 +1,24 @@
+{
+    "task_id":  "t-21",
+    "bucket":  "edge",
+    "input":  "РћС†С–РЅРё, С‡Рё РґРѕСЃС‚Р°С‚РЅСЊРѕ Р·СЂРѕР·СѓРјС–Р»Рµ РїРѕС‚РѕС‡РЅРµ С„РѕСЂРјСѓР»СЋРІР°РЅРЅСЏ Р»РѕРіС–РІ Сѓ src/harness/stop.ts, Р°Р»Рµ РЅРµ СЂРµРґР°РіСѓР№ С„Р°Р№Р»Рё РєРѕРґСѓ.",
+    "files":  [
+
+              ],
+    "agent_path":  "ai-sdk (gemini-3.5-flash-lite)",
+    "artifact_dir":  "docs/lab3/runs/t-21-1795391301995",
+    "started_at":  "2026-11-22T23:48:21.995Z",
+    "ended_at":  "2026-11-22T23:48:31.427Z",
+    "duration_s":  9.4,
+    "exit_status":  "ok",
+    "acceptance":  [
+                       {
+                           "cmd":  "npm run typecheck",
+                           "exit":  0
+                       }
+                   ],
+    "acceptance_passed":  true,
+    "input_tokens":  1428,
+    "output_tokens":  135,
+    "cost_usd_estimate":  0.002103
+}

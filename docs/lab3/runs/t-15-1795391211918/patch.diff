@@ -1,0 +1,25 @@
+diff --git a/src/harness/breaker.ts b/src/harness/breaker.ts
+index 8e9a3eb..f87d1ea 100644
+--- a/src/harness/breaker.ts
++++ b/src/harness/breaker.ts
+@@ -58,6 +58,13 @@ export function saveBreaker(state: BreakerState, filePath = BREAKER_FILE): void
+   writeFileSync(filePath, `${JSON.stringify(valid, null, 2)}\n`, 'utf8');
+ }
+ 
++/**
++ * Checks whether a task execution or probe is allowed based on the circuit breaker state and cooldown period.
++ * 
++ * @param filePath - Path to the breaker state JSON file.
++ * @param nowMs - Current timestamp in milliseconds (defaults to Date.now()).
++ * @returns An object indicating whether the run is allowed, whether it is a probe, and a reason string.
++ */
+ export function mayRun(
+   filePath = BREAKER_FILE,
+   nowMs = Date.now(),
+@@ -164,4 +171,4 @@ export function recordBreaker(
+ 
+   saveBreaker(next, filePath);
+   return next;
+-}
+\ No newline at end of file
++}

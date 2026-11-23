@@ -1,0 +1,24 @@
+{
+    "task_id":  "t-06",
+    "bucket":  "regression",
+    "input":  "РЎС‚РІРѕСЂРё РїСЂРѕСЃС‚РёР№ С‚РµСЃС‚ tests/dummy.test.ts, СЏРєРёР№ Р·Р°РІР¶РґРё РїСЂРѕС…РѕРґРёС‚СЊ (expect(1).toBe(1)).",
+    "files":  [
+                  "tests/dummy.test.ts"
+              ],
+    "agent_path":  "ai-sdk (gemini-3.5-flash-lite)",
+    "artifact_dir":  "docs/lab3/runs/t-06-1795391446301",
+    "started_at":  "2026-11-22T23:50:46.301Z",
+    "ended_at":  "2026-11-22T23:50:50.735Z",
+    "duration_s":  4.4,
+    "exit_status":  "ok",
+    "acceptance":  [
+                       {
+                           "cmd":  "npm run test -- tests/dummy.test.ts",
+                           "exit":  0
+                       }
+                   ],
+    "acceptance_passed":  true,
+    "input_tokens":  357,
+    "output_tokens":  73,
+    "cost_usd_estimate":  0.000722
+}

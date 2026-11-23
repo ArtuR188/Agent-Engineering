@@ -1,0 +1,24 @@
+{
+    "task_id":  "t-05",
+    "bucket":  "regression",
+    "input":  "РћРЅРѕРІРё README.md РІ РєРѕСЂРµРЅС–: РґРѕРґР°Р№ СЃРµРєС†С–СЋ MCP Server Р· С–РЅСЃС‚СЂСѓРєС†С–С”СЋ Р·Р°РїСѓСЃРєСѓ npx tsx src/mcp/server.ts.",
+    "files":  [
+                  "README.md"
+              ],
+    "agent_path":  "ai-sdk (gemini-3.5-flash-lite)",
+    "artifact_dir":  "docs/lab3/runs/t-05-1795391022686",
+    "started_at":  "2026-11-22T23:43:42.686Z",
+    "ended_at":  "2026-11-22T23:44:02.462Z",
+    "duration_s":  19.8,
+    "exit_status":  "ok",
+    "acceptance":  [
+                       {
+                           "cmd":  "npm run lint",
+                           "exit":  0
+                       }
+                   ],
+    "acceptance_passed":  true,
+    "input_tokens":  11834,
+    "output_tokens":  2158,
+    "cost_usd_estimate":  0.022624
+}

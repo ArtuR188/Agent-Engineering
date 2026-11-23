@@ -1,0 +1,25 @@
+diff --git a/src/harness/stop.ts b/src/harness/stop.ts
+index eb062ef..5ba297e 100644
+--- a/src/harness/stop.ts
++++ b/src/harness/stop.ts
+@@ -19,7 +19,13 @@ export function appendStopLog(entry: StopLogEntry, logPath = STOP_LOG_PATH): voi
+ }
+ 
+ /**
++ * Перевіряє чи досягнуто ліміт кроків.
+  * Обгортка над isStepCount(n) із AI SDK: при спрацюванні фіксує рядок у stop-log.jsonl.
++ * 
++ * @param n - максимальна кількість кроків
++ * @param taskId - ідентифікатор задачі
++ * @param logPath - шлях до файлу логу (за замовчуванням STOP_LOG_PATH)
++ * @returns функцію перевірки зупинки для AI SDK
+  */
+ export function stepLimit(n: number, taskId: string, logPath = STOP_LOG_PATH) {
+   const inner = isStepCount(n);
+@@ -70,4 +76,4 @@ export function createTaskTimeout(timeoutMs: number, taskId: string, logPath = S
+     signal: controller.signal,
+     clear: () => clearTimeout(timer),
+   };
+-}
+\ No newline at end of file
++}

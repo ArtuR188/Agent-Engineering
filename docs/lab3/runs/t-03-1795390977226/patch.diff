@@ -1,0 +1,14 @@
+diff --git a/tests/mcp.test.ts b/tests/mcp.test.ts
+index f10f94f..1483ed1 100644
+--- a/tests/mcp.test.ts
++++ b/tests/mcp.test.ts
+@@ -42,6 +42,7 @@ describe('інструменти MCP-сервера', () => {
+     const deps = await fixture();
+     expect(fetchInput.safeParse({ id: '../../.env' }).success).toBe(false);
+     expect(fetchInput.safeParse({ id: 'C:\\Users\\me\\.ssh\\id_rsa' }).success).toBe(false);
++    expect(fetchInput.safeParse({ id: '' }).success).toBe(false);
+     expect(() => fetchChunk(deps, { id: 'doc-99#0000' })).toThrowError(/немає в індексі/);
+   });
+-});
+\ No newline at end of file
++});

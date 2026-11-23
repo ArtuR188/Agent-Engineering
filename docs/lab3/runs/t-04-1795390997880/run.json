@@ -1,0 +1,29 @@
+{
+    "task_id":  "t-04",
+    "bucket":  "regression",
+    "input":  "Р РµС„Р°РєС‚РѕСЂРёРЅРі: РІРёРЅРµСЃРё Р»РѕРіС–РєСѓ С‡РёС‚Р°РЅРЅСЏ С„Р°Р№Р»Сѓ data/index.json Р· src/mcp/tools.ts Сѓ РѕРєСЂРµРјСѓ СѓС‚РёР»С–С‚Сѓ src/mcp/utils.ts.",
+    "files":  [
+                  "src/mcp/tools.ts",
+                  "src/mcp/utils.ts"
+              ],
+    "agent_path":  "ai-sdk (gemini-3.5-flash-lite)",
+    "artifact_dir":  "docs/lab3/runs/t-04-1795390997880",
+    "started_at":  "2026-11-22T23:43:17.880Z",
+    "ended_at":  "2026-11-22T23:43:40.291Z",
+    "duration_s":  22.4,
+    "exit_status":  "ok",
+    "acceptance":  [
+                       {
+                           "cmd":  "npm run typecheck",
+                           "exit":  2
+                       },
+                       {
+                           "cmd":  "npm run test -- tests/mcp.test.ts",
+                           "exit":  0
+                       }
+                   ],
+    "acceptance_passed":  false,
+    "input_tokens":  18979,
+    "output_tokens":  1145,
+    "cost_usd_estimate":  0.024704
+}

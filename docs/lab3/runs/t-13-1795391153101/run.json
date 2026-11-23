@@ -1,0 +1,24 @@
+{
+    "task_id":  "t-13",
+    "bucket":  "new",
+    "input":  "Р”РѕРґР°Р№ Сѓ src/harness/stop.ts РґРѕРїРѕРјС–Р¶РЅСѓ С„СѓРЅРєС†С–СЋ isQuota429Error(err: unknown): boolean.",
+    "files":  [
+                  "src/harness/stop.ts"
+              ],
+    "agent_path":  "ai-sdk (gemini-3.5-flash-lite)",
+    "artifact_dir":  "docs/lab3/runs/t-13-1795391153101",
+    "started_at":  "2026-11-22T23:45:53.101Z",
+    "ended_at":  "2026-11-22T23:46:11.175Z",
+    "duration_s":  18.1,
+    "exit_status":  "ok",
+    "acceptance":  [
+                       {
+                           "cmd":  "npm run typecheck",
+                           "exit":  0
+                       }
+                   ],
+    "acceptance_passed":  true,
+    "input_tokens":  5491,
+    "output_tokens":  1065,
+    "cost_usd_estimate":  0.010816
+}

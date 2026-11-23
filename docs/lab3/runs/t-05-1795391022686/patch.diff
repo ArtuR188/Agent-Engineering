@@ -1,0 +1,18 @@
+diff --git a/README.md b/README.md
+index 41063de..2f18d1a 100644
+--- a/README.md
++++ b/README.md
+@@ -6,6 +6,13 @@
+ 
+ Слайди курсу: <https://koldovsky.github.io/2026-2027-agentic-engineering-course/>
+ 
++## MCP Server
++
++Для запуску MCP Server використовуйте інструкцію:
++```bash
++npx tsx src/mcp/server.ts
++```
++
+ ## Швидкий старт
+ 
+ 1. Натисніть **«Use this template» → Create a new repository**. Не форкайте: вам потрібна власна історія комітів, бо порядок ваших комітів — частина доказів.

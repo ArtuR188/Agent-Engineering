@@ -145,14 +145,8 @@ async function main() {
   const results: CriterionVerdict[] = [];
 
   if (safeDiff.trim() === '') {
-    for (const c of uniqueCriteria) {
-      results.push({
-        id: c,
-        verdict: 'unknown',
-        reason: 'patch.diff порожній — немає змін для верифікації.',
-        evidence: '',
-      });
-    }
+    console.log('patch.diff порожній — немає змін для верифікації, пропуск.');
+    process.exit(0);
   } else {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {

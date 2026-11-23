@@ -1,0 +1,32 @@
+diff --git a/src/mcp/tools.ts b/src/mcp/tools.ts
+index f712624..b097ac7 100644
+--- a/src/mcp/tools.ts
++++ b/src/mcp/tools.ts
+@@ -62,4 +62,4 @@ export function fetchChunk(deps: Deps, raw: unknown): string {
+   if (!chunk) throw new Refusal(`фрагмента ${id} немає в індексі`);
+   const c = toCitation(chunk, clip(chunk.text));
+   return `${renderCitation(c)}\n${clip(chunk.text)}`;
+-}
+\ No newline at end of file
++}
+diff --git a/src/mcp/utils.ts b/src/mcp/utils.ts
+new file mode 100644
+index 0000000..afd2d9c
+--- /dev/null
++++ b/src/mcp/utils.ts
+@@ -0,0 +1,15 @@
++import { fileURLToPath } from 'node:url';
++import { dirname, resolve } from 'node:path';
++import { loadIndex, type IndexFile } from '../rag/store';
++import { geminiEmbedder, type Embedder } from '../rag/embed';
++import { bm25From, type Bm25Index } from '../rag/search';
++import type { Deps } from './tools';
++
++const HERE = dirname(fileURLToPath(import.meta.url));
++const ROOT = resolve(HERE, '../..');
++
++export function loadIndexData(): Deps {
++  const embedder = geminiEmbedder(768);
++  const index = loadIndex(resolve(ROOT, 'data/index.json'), embedder);
++  return { index, words: bm25From(index), embedder };
++}

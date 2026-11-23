@@ -1,0 +1,28 @@
+{
+    "task_id":  "t-16",
+    "bucket":  "new",
+    "input":  "Р”РѕРґР°Р№ JSDoc РєРѕРјРµРЅС‚Р°СЂ РґРѕ С„СѓРЅРєС†С–С— stepLimit Сѓ src/harness/stop.ts Р±РµР· Р·РјС–РЅРё Р»РѕРіС–РєРё.",
+    "files":  [
+                  "src/harness/stop.ts"
+              ],
+    "agent_path":  "ai-sdk (gemini-3.5-flash-lite)",
+    "artifact_dir":  "docs/lab3/runs/t-16-1795391239060",
+    "started_at":  "2026-11-22T23:47:19.060Z",
+    "ended_at":  "2026-11-22T23:47:37.236Z",
+    "duration_s":  18.2,
+    "exit_status":  "ok",
+    "acceptance":  [
+                       {
+                           "cmd":  "npm run typecheck",
+                           "exit":  0
+                       },
+                       {
+                           "cmd":  "npm run lint",
+                           "exit":  0
+                       }
+                   ],
+    "acceptance_passed":  true,
+    "input_tokens":  5089,
+    "output_tokens":  839,
+    "cost_usd_estimate":  0.009284
+}
