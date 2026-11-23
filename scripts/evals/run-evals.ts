@@ -15,6 +15,7 @@ import {
 } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { z } from 'zod';
+import { assertReadAllowed, assertSafeOutput, assertWriteAllowed } from '../../src/harness/policy';
 import { estimateCost } from '../../src/models';
 import { checkAcceptance, type Task } from '../harness/run-task';
 import { grade } from './graders';
@@ -41,15 +42,6 @@ function loadEnvLocal(): void {
     const val = m[2]?.trim().replace(/^['"]|['"]$/g, '') ?? '';
     if (key && !process.env[key]) process.env[key] = val;
   }
-}
-
-function safePath(root: string, rel: string): string {
-  const abs = resolve(root, rel);
-  const d = relative(root, abs);
-  if (d.startsWith('..') || /\.env/i.test(d)) {
-    throw new Error(`Заборонений шлях: ${rel}`);
-  }
-  return abs;
 }
 
 function linkNodeModules(worktree: string): string {
@@ -87,7 +79,7 @@ async function runSingleAttempt(task: Task, worktree: string, outDir: string, ap
       description: 'Прочитати файл із поточного робочого дерева.',
       inputSchema: z.object({ path: z.string() }),
       execute: async ({ path }) => {
-        const abs = safePath(worktree, path);
+        const abs = assertReadAllowed(worktree, path);
         if (!existsSync(abs)) return `FILE_NOT_FOUND:${path}`;
         return readFileSync(abs, 'utf8').slice(0, 24000);
       },
@@ -96,7 +88,7 @@ async function runSingleAttempt(task: Task, worktree: string, outDir: string, ap
       description: 'Записати файл у поточному робочому дереві.',
       inputSchema: z.object({ path: z.string(), content: z.string() }),
       execute: async ({ path, content }) => {
-        const abs = safePath(worktree, path);
+        const abs = assertWriteAllowed(worktree, path, content, task.files);
         mkdirSync(dirname(abs), { recursive: true });
         writeFileSync(abs, content, 'utf8');
         return `written:${path}`;
@@ -123,7 +115,7 @@ async function runSingleAttempt(task: Task, worktree: string, outDir: string, ap
     submitArtifact: tool({
       description: 'Завершити роботу над задачею з коротким звітом.',
       inputSchema: z.object({ summary: z.string() }),
-      execute: async ({ summary }) => ({ done: true, summary }),
+      execute: async ({ summary }) => ({ done: true, summary: assertSafeOutput(summary) }),
     }),
   };
 

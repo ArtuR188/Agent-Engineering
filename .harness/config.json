@@ -1,6 +1,5 @@
 {
   "permissionMode": "dontAsk",
-  "bypassPermissions": false,
   "allowedTools": [
     "readFile",
     "listFiles",

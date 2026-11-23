@@ -7,8 +7,9 @@ import { trace } from '@opentelemetry/api';
 import { generateText, hasToolCall, isStepCount, tool } from 'ai';
 import { execFileSync } from 'node:child_process';
 import { appendFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { dirname, join, relative, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { z } from 'zod';
+import { assertReadAllowed, assertSafeOutput, assertWriteAllowed } from '../../src/harness/policy';
 import { initTelemetry, shutdownTelemetry } from '../../src/telemetry/otel';
 import type { Task } from '../harness/run-task';
 import { CANARY, CASES, type RedTeamCase } from './cases';
@@ -27,15 +28,6 @@ function loadEnvLocal(): void {
     const val = m[2]?.trim().replace(/^['"]|['"]$/g, '') ?? '';
     if (key && !process.env[key]) process.env[key] = val;
   }
-}
-
-function safePath(root: string, rel: string): string {
-  const abs = resolve(root, rel);
-  const d = relative(root, abs);
-  if (d.startsWith('..') || /\.env/i.test(d)) {
-    throw new Error(`Заборонений шлях (dontAsk): ${rel}`);
-  }
-  return abs;
 }
 
 const git = (args: string[], cwd = '.') => execFileSync('git', args, { cwd, encoding: 'utf8' });
@@ -57,7 +49,7 @@ async function runCase(c: RedTeamCase, baseTask: Task, worktree: string, artifac
         inputSchema: z.object({ path: z.string() }),
         execute: async ({ path }) => {
           try {
-            const abs = safePath(worktree, path);
+            const abs = assertReadAllowed(worktree, path);
             if (!existsSync(abs)) return `FILE_NOT_FOUND:${path}`;
             return readFileSync(abs, 'utf8').slice(0, 12000);
           } catch (err) {
@@ -73,7 +65,7 @@ async function runCase(c: RedTeamCase, baseTask: Task, worktree: string, artifac
         inputSchema: z.object({ path: z.string(), content: z.string() }),
         execute: async ({ path, content }) => {
           try {
-            const abs = safePath(worktree, path);
+            const abs = assertWriteAllowed(worktree, path, content, baseTask.files);
             mkdirSync(dirname(abs), { recursive: true });
             writeFileSync(abs, content, 'utf8');
             return `written:${path}`;
@@ -96,7 +88,16 @@ async function runCase(c: RedTeamCase, baseTask: Task, worktree: string, artifac
       submitArtifact: tool({
         description: 'Завершити задачу та передати підсумок.',
         inputSchema: z.object({ summary: z.string() }),
-        execute: async ({ summary }) => ({ done: true, summary }),
+        execute: async ({ summary }) => {
+          try {
+            return { done: true, summary: assertSafeOutput(summary) };
+          } catch (err) {
+            toolBlocked = true;
+            const msg = err instanceof Error ? err.message : String(err);
+            agentLog += `[submitArtifact blocked] ${msg}\n`;
+            throw err;
+          }
+        },
       }),
     };
 
@@ -132,7 +133,14 @@ async function runCase(c: RedTeamCase, baseTask: Task, worktree: string, artifac
         submitCall && typeof submitCall.input === 'object' && submitCall.input !== null && 'summary' in submitCall.input
           ? String((submitCall.input as { summary: unknown }).summary)
           : '';
-      outputText = [res.text, submitSummary].filter(Boolean).join('\n');
+      const rawOut = [res.text, submitSummary].filter(Boolean).join('\n');
+      try {
+        outputText = assertSafeOutput(rawOut);
+      } catch (err) {
+        toolBlocked = true;
+        agentLog += `[output blocked] ${err instanceof Error ? err.message : String(err)}\n`;
+        outputText = '[BLOCKED_BY_EGRESS_POLICY]';
+      }
     } catch (err) {
       exitStatus = 'agent_failed';
       agentLog += `[agent_failed] ${err instanceof Error ? err.message : String(err)}\n`;
