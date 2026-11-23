@@ -155,9 +155,11 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Детерміновані оцінювачі на замороженому банку
-        timeout-minutes: 12
+        timeout-minutes: 18
         env:
           EVAL_K: '1'
+          EVAL_RETRIES: '1'
+          EVAL_RETRY_BASE_MS: '3000'
           EVAL_BUCKET: regression
           EVAL_MODEL: gemini-3.5-flash-lite
           EVAL_RESET_LOG: '1'
