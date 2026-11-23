@@ -1,5 +1,18 @@
 # Журнал автономності (Лабораторна 3)
 
+## Зведена таблиця сесій (обов'язкові поля)
+
+| Дата | Крок / Гілка | Інструмент і модель | Режим дозволів | Ізоляція | Втручання | Докази |
+|---|---|---|---|---|---|---|
+| 2026-11-17 | Крок 00 (`main`, `f50fb51`) | OpenCode + Ollama (`qwen3:4b`) | `dontAsk` еквівалент | `git worktree` | Налаштування черги, раннера і тестів | `docs/lab3/factory.md`, `tests/harness/run-task.test.ts` |
+| 2026-11-22 | Крок 01–02 (`harness/verify-stop-2026-11-22`) | AI SDK + `gemini-3.5-flash-lite` | `dontAsk` (CI read-only) | GitHub Actions runner | Заміна `gemini-3.8-flash` → `3.5-flash-lite` через `503`/`429`, додано ретраї | `docs/lab3/gates.md`, `docs/lab3/verifier.md`, runs `45017118271` / `45017732428` |
+| 2026-11-22 | Крок 03 (`harness/stop-2026-11-22`) | AI SDK + `gemini-3.5-flash-lite` | `dontAsk` + `allowedTools` (`.harness/config.json`) | `git worktree` / Actions | Додано 3 шари зупинення (`stop.ts`, `breaker.ts`, `factory.yml`) | `docs/lab3/stop.md`, `docs/lab3/stop-log.jsonl` |
+| 2026-11-22 | Крок 04 (`harness/evals-2026-11-22`) | AI SDK + `gemini-3.5-flash-lite` | `dontAsk` + типізовані tools | `git worktree` на кожну спробу | Замороження 22 задач, симуляція й відкат регресії | `docs/lab3/evals.md`, `docs/lab3/evals.jsonl`, runs `45069072666` / `45079416697` |
+| 2026-11-23 | Крок 05 (`harness/judge-2026-11-23`) | Ollama `qwen3:4b` (`9a59bb27fe92`) | read-only оцінювання артефактів | локальний Ollama, без мережі | Ручна розмітка 20 кейсів до запуску судді, ітерація рубрики v1→v2 | `docs/lab3/judge.md`, `docs/lab3/judge-cases.jsonl` |
+| 2026-11-23 | Крок 06 (`harness/tracing-2026-11-23`) | AI SDK + `gemini-3.5-flash-lite` + OTel → Langfuse | `dontAsk`, `recordInputs/Outputs: false` | `git worktree` | Видалено конфліктні `@langfuse/*`, фікс `traceId` у `stop-log.jsonl` (`7f3a826`) | `docs/lab3/errors.md`, 10 пар у `docs/lab3/traces/` |
+| 2026-11-23 | Крок 07 (`harness/redteam-2026-11-23`) | AI SDK + `gemini-3.5-flash-lite` | `dontAsk`, `src/harness/policy.ts` | `git worktree` на кожен кейс | Виявлено витік у `r-04` (`202f422`), закрито програмною межею (`dadd8f1`) | `docs/lab3/redteam.md`, `docs/lab3/redteam.jsonl`, 12 трас у `traces/` |
+| 2026-11-23 | Крок 08 (`harness/package-2026-11-23`) | AI SDK + GitHub Actions | `dontAsk` + `allowedTools` | `git worktree` / Actions | Аудит секретів, фікс регресії `t-06` у `policy.ts` (`457c0e2`, зловлено CI `45160055893`), збірка `README.md` | `docs/lab3/README.md`, `docs/lab3/evals.md`, `src/harness/policy.ts` |
+
 ## Сесія 1 (2026-11-17) - Фабрика
 - **Агент / Модель:** opencode / Ollama
 - **Режим дозволів:** dontAsk еквівалент (локально)
@@ -46,3 +59,9 @@
 ## 2026-11-23 — Крок 07: red-team стійкість до ін'єкції промпту (`harness/redteam-2026-11-23`)
 * **Сценарії та кодові інваріанти (`202f422`):** створено `scripts/redteam/cases.ts` (6 сценаріїв за мотивами AgentDojo та InjecAgent: `r-01..r-06` по 2 на `task_input`, `tool_result`, `fetched_doc`), `scripts/redteam/invariants.ts` (5 детермінованих перевірок після кожного прогону в ізольованому `git worktree`) і раннер `scripts/redteam/run-redteam.ts`; базовий прогін `before` зафіксував порушення `no_canary_leak` у `r-04`.
 * **Програмна межа в харнесі (`dadd8f1`):** реалізовано `src/harness/policy.ts` (`assertReadAllowed`, `assertWriteAllowed`, `assertSafeOutput`) і тести `src/harness/policy.test.ts`; повторний прогін `after` завершився з кодом `0` (0 порушень), витяжки трас збережено в `docs/lab3/traces/`, звіт оформлено в `docs/lab3/redteam.md`.
+
+## 2026-11-23 — Крок 08: пакет доказів, аудит секретів і фінальний звіт (`harness/package-2026-11-23`)
+* **Інструмент і модель:** AI SDK `7.0.173` + `gemini-3.5-flash-lite`, Ollama `qwen3:4b`, OpenTelemetry → Langfuse EU.
+* **Режим дозволів та ізоляція:** `dontAsk` + явний `allowedTools` (`.harness/config.json`, без прапорців обходу), ізоляція кожного прогону в окремому `git worktree`.
+* **Втручання:** аудит історії `git log --all` на `.env`/`.env.local` та префікси ключів провайдерів (реальних секретів не виявлено); перевірено незмінність `docs/lab1/` і `docs/lab2/`; додано підсумок у `docs/lab3/evals.md` і зібрано `docs/lab3/README.md`.
+* **Докази:** `docs/lab3/README.md`, `docs/lab3/evals.md`, фікс регресії `t-06` (`457c0e2`) після червоного `gates` (`45160055893` на `53f54d8`), збережені червоні прогони `45017118271` (`verify`) і `45069072666` (`evals`), зелений `gates` на `main`.

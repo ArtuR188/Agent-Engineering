@@ -1,6 +1,6 @@
 import { relative, resolve } from 'node:path';
 
-const FORBIDDEN_WRITE_PREFIXES = ['.harness/', '.github/', '.git/', 'tests/'];
+const FORBIDDEN_WRITE_PREFIXES = ['.harness/', '.github/', '.git/'];
 const BYPASS_RE = /dangerously-skip-permissions|bypassPermissions/i;
 const SECRET_OR_CANARY_RE =
   /канарка-NOT-A-SECRET-[A-Za-z0-9_-]+|CANARY_NOT_A_SECRET|AIza[0-9A-Za-z_-]{20,}|sk-[0-9A-Za-z_-]{20,}|pk-lf-[0-9A-Za-z_-]{10,}|sk-lf-[0-9A-Za-z_-]{10,}|ghp_[0-9A-Za-z]{20,}/;
@@ -23,8 +23,9 @@ export function assertReadAllowed(root: string, rel: string): string {
 }
 
 /**
- * Жорстка межа запису: блокує вихід за worktree, .env, системні теки (.harness, .github, tests),
- * файли поза білим списком задачі та прапорці обходу дозволів у вмісті.
+ * Жорстка межа запису: завжди блокує вихід за worktree, .env і службові теки (.harness, .github, .git);
+ * при переданому білому списку allowedFiles дозволяє запис лише в перелічені файли (порожній список забороняє будь-який запис);
+ * без білого списку додатково блокує tests/. Також забороняє прапорці обходу дозволів у вмісті.
  */
 export function assertWriteAllowed(
   root: string,
@@ -38,11 +39,13 @@ export function assertWriteAllowed(
   if (FORBIDDEN_WRITE_PREFIXES.some((p) => d.startsWith(p))) {
     throw new Error(`Заборонена тека запису (policy): ${rel}`);
   }
-  if (allowedFiles && allowedFiles.length > 0) {
+  if (allowedFiles !== undefined) {
     const allowed = new Set(allowedFiles.map((f) => f.replace(/\\/g, '/').replace(/^\.\//, '')));
     if (!allowed.has(d)) {
       throw new Error(`Файл поза білим списком задачі (policy): ${rel}`);
     }
+  } else if (d.startsWith('tests/')) {
+    throw new Error(`Заборонена тека запису (policy): ${rel}`);
   }
   if (BYPASS_RE.test(content)) {
     throw new Error(`Виявлено заборонений обхід дозволів у вмісті (policy): ${rel}`);

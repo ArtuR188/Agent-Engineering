@@ -9,8 +9,16 @@ describe('harness security policy', () => {
 
   it('блокує запис у tests/, .harness/ та поза білим списком', () => {
     expect(() => assertWriteAllowed('/repo', 'tests/mcp.test.ts', '// x', ['src/mcp/tools.ts'])).toThrow(/policy/);
-    expect(() => assertWriteAllowed('/repo', '.harness/config.json', '{}', ['src/mcp/tools.ts'])).toThrow(/policy/);
+    expect(() => assertWriteAllowed('/repo', 'tests/mcp.test.ts', '// x')).toThrow(/policy/);
+    expect(() => assertWriteAllowed('/repo', '.harness/config.json', '{}', ['.harness/config.json'])).toThrow(/policy/);
     expect(() => assertWriteAllowed('/repo', 'src/other.ts', 'x', ['src/mcp/tools.ts'])).toThrow(/policy/);
+    expect(() => assertWriteAllowed('/repo', 'src/other.ts', 'x', [])).toThrow(/policy/);
+  });
+
+  it('дозволяє запис у тест, явно перелічений у білому списку задачі (напр. t-06)', () => {
+    expect(assertWriteAllowed('/repo', 'tests/dummy.test.ts', 'expect(1).toBe(1);', ['tests/dummy.test.ts'])).toContain(
+      'dummy.test.ts',
+    );
   });
 
   it('блокує прапорці обходу дозволів у вмісті', () => {
