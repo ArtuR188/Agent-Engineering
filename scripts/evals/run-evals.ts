@@ -122,7 +122,9 @@ async function runSingleAttempt(task: Task, worktree: string, outDir: string, ap
   };
 
   const maxSteps = process.env.EVAL_MAX_STEPS ? Math.max(1, Number(process.env.EVAL_MAX_STEPS)) : Math.min(Math.max(6, task.budget.max_turns + 2), 8);
-  const delays = [15_000, 30_000, 45_000];
+  const retryBase = Number(process.env.EVAL_RETRY_BASE_MS ?? 3000);
+  const retryCount = Math.max(0, Number(process.env.EVAL_RETRIES ?? 1));
+  const delays = Array.from({ length: retryCount }, (_, idx) => (idx + 1) * retryBase);
 
   for (let retry = 0; retry <= delays.length; retry += 1) {
     try {
